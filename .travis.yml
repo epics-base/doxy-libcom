@@ -1,0 +1,16 @@
+sudo: false
+dist: trusty
+language: c
+compiler:
+  - gcc
+addons:
+  apt:
+    packages:
+    - perl
+    - doxygen
+    - doxygen-latex
+    - graphviz
+script:
+ - ./.ci/travis-build.sh
+env:
+ - BRCORE=master BRLIBCOM=master BRCA=master

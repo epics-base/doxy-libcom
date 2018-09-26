@@ -1,0 +1,54 @@
+#*************************************************************************
+# Copyright (c) 2017 UChicago Argonne LLC, as Operator of Argonne
+#     National Laboratory.
+# EPICS BASE is distributed subject to a Software License Agreement found
+# in file LICENSE that is included with this distribution.
+#*************************************************************************
+
+vpath %.html $(USR_VPATH) . $(SRC_DIRS)
+
+ACTIONS += build
+ACTIONS += install
+ACTIONS += buildInstall
+ACTIONS += runtests tapfiles clean-tests test-results junitfiles
+
+actionArchTargets = $(foreach action, $(ACTIONS), \
+    $(foreach arch, $(BUILD_ARCHS), $(action)$(DIVIDER)$(arch)))
+cleanArchTargets = $(foreach arch, $(BUILD_ARCHS), clean$(DIVIDER)$(arch))
+
+#---------------------------------------------------------------
+# First target
+
+all: install
+
+include $(CONFIG)/RULES_DOCS
+
+install: buildInstall
+buildInstall: build
+rebuild: clean install
+
+build: $(TARGETS)
+buildInstall: $(INSTALL_HTMLS) $(INSTALL_DOCS)
+
+$(actionArchTargets) $(BUILD_ARCHS): install
+$(cleanArchTargets): clean
+
+# Rules for running doxygen
+doxygen: $(DOXYFILE)
+	$(DOXYGEN) $(DOXYFILE)
+
+realclean: clean
+clean: clean-files clean-dirs
+clean-files:
+	@$(RM) $(CLEANFILES)
+clean-dirs:
+	@$(RMDIR) $(CLEANDIRS)
+
+include $(CONFIG)/RULES_EXPAND
+
+.PHONY: all realclean clean clean-files clean-dirs doxygen $(ACTIONS)
+.PHONY: $(BUILD_ARCHS) $(actionArchTargets) $(cleanArchTargets)
+
+#  User specific rules
+#
+-include $(HOME)/configure/RULES_USER
