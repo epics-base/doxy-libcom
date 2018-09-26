@@ -11,6 +11,4 @@ addons:
     - doxygen-latex
     - graphviz
 script:
- - ./.ci/travis-build.sh
-env:
- - BRCORE=master BRLIBCOM=master BRCA=master
+  - ./.ci/travis-build.sh
