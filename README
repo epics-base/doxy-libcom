@@ -13,15 +13,18 @@ this distribution.
 
 ---------------------------------------------------------
 
-Installation and release information can be found in the
-various files in the documentation subdirectory.
+This repository contains a set of C header (include) files
+extracted from the development branch of EPICS Base, along
+with enough of the EPICS Build system to be able to run
+doxygen against those header files.
 
-Additional information about EPICS including mailing list
-archives and subscription instructions, documentation and
-training materials, additional components, links to other
-websites etc. is available on the EPICS home page at
-	https://epics.anl.gov/
+Every GitHub pull-request made against this repository will
+be processed by Travis-CI and the results will be uploaded
+to a website at ...
+where they can be checked. If the results aren't quite as
+you expected them to be, make some changes, commit and push
+the update to the branch that you issued the pull request
+for and watch Travis re-process your branch.
 
-$Format:%cD$
-$Format:%H$
-https://code.launchpad.net/epics-base
+...
+
