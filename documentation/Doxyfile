@@ -1,0 +1,36 @@
+# Doxyfile 1.8.7
+
+# This template is used to generate the doxygen config file for EPICS Base
+
+# Project details
+PROJECT_NAME           = "EPICS Base"
+PROJECT_NUMBER         = 7.0.1.2
+
+# Input paths
+INPUT                  = ../include
+RECURSIVE              = YES
+STRIP_FROM_PATH        = ../include
+INCLUDE_PATH           = ../include \
+    ../include/compiler/gcc ../include/os/Linux
+
+# Output paths
+HTML_OUTPUT            = ../html/doxygen
+LATEX_OUTPUT           = O.latex
+
+# Input configuration
+TAB_SIZE               = 8
+CASE_SENSE_NAMES       = YES
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = NO
+
+# Output configuration
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = NO
+PAPER_TYPE             = letter
+LATEX_BATCHMODE        = YES
+ALWAYS_DETAILED_SEC    = NO
+SORT_MEMBER_DOCS       = NO
+BRIEF_MEMBER_DESC      = YES
+REPEAT_BRIEF           = NO
+EXTRACT_ALL            = NO

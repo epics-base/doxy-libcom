@@ -10,18 +10,19 @@ this distribution.
 
 This repository contains a set of C header (include) files
 extracted from the development branch of EPICS Base, along
-with enough of the EPICS Build system to be able to run
-doxygen against those header files.
+with a configuration file for Doxygen to tell it how to
+process those header files.
 
 Every GitHub pull-request (and subsequent commit to that
 branch) made against this repository will be processed by
-Jenkins and the results made available on a website where
+Doxygen and the results made available on a website where
 they can be checked - a link to the results from your pull
 request will be sent to you by email when the processing
 is finished. If the output wasn't quite what you wanted it
-to look like, fix your Doxygen annotations, commit them
-and commit and push to the same branch. Jenkins will redo
-the processing and send you another email when it's ready.
+to look like, fix your Doxygen annotations and commit and
+push them to your branch (or just commit them if you're
+working directly on Github). Doxygen will redo the
+processing and you'll get another email when it's ready.
 
 ...
 
