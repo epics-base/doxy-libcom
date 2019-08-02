@@ -4,9 +4,10 @@
 # Copyright (c) 2002 The Regents of the University of California, as
 #     Operator of Los Alamos National Laboratory.
 # EPICS BASE is distributed subject to a Software License Agreement found
-# in file LICENSE that is included with this distribution.
+# in the file LICENSE that is included with this distribution.
 #*************************************************************************
-#RULES.Db
+
+# RULES.Db
 
 # Set db substitutions and template file suffixes
 SUBST_SUFFIX ?= .substitutions
@@ -160,7 +161,7 @@ actionArchTargets = $(foreach action, $(ACTIONS), \
     $(foreach arch, $(BUILD_ARCHS), $(action)$(DIVIDER)$(arch)))
 cleanArchTargets = $(foreach arch, $(BUILD_ARCHS), clean$(DIVIDER)$(arch))
 
-include $(CONFIG)/CONFIG_APP_INCLUDE
+-include $(TOP)/configure/CONFIG_APP_INCLUDE
 
 all: install
 

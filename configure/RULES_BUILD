@@ -6,11 +6,12 @@
 # EPICS BASE is distributed subject to a Software License Agreement found
 # in the file LICENSE that is included with this distribution.
 #*************************************************************************
+
+# RULES_BUILD
+
+# Rules for making things specified in a Makefile
 #
-#	Rules for making things specified in Makefile
-#
-#	we are in O.$(T_A), but most sources are elsewhere
-#
+# CWD is O.$(T_A), but most sources are elsewhere
 
 ifndef BASE_RULES_BUILD
 BASE_RULES_BUILD=1
@@ -42,6 +43,7 @@ LOADABLE_LIBRARY += $(LOADABLE_LIBRARY_HOST)
 OBJS += $(OBJS_HOST)
 PROD += $(PROD_HOST)
 SCRIPTS += $(SCRIPTS_HOST)
+TARGETS += $(TARGETS_HOST)
 TESTLIBRARY += $(TESTLIBRARY_HOST)
 TESTSCRIPTS += $(TESTSCRIPTS_HOST)
 TESTPROD += $(TESTPROD_HOST)
@@ -53,6 +55,7 @@ LOADABLE_LIBRARY += $(LOADABLE_LIBRARY_IOC)
 OBJS += $(OBJS_IOC)
 PROD += $(PROD_IOC)
 SCRIPTS += $(SCRIPTS_IOC)
+TARGETS += $(TARGETS_IOC)
 TESTLIBRARY += $(TESTLIBRARY_IOC)
 TESTSCRIPTS += $(TESTSCRIPTS_IOC)
 TESTPROD += $(TESTPROD_IOC)
@@ -65,6 +68,8 @@ INSTALL_TEMPLATES_SUBDIR = $(INSTALL_TEMPLATES)/$(TEMPLATES_DIR)
 else
 INSTALL_TEMPLATES_SUBDIR = $(INSTALL_TEMPLATES)
 endif
+
+HTMLS_DIR ?= .
 
 #---------------------------------------------------------------
 #	First target
@@ -183,7 +188,7 @@ endif
 
 # RELEASE file consistency checking
 checkRelease:
-	$(CONVERTRELEASE) checkRelease
+	+$(CONVERTRELEASE) checkRelease
 warnRelease:
 	-$(CONVERTRELEASE) checkRelease
 noCheckRelease:
@@ -197,12 +202,12 @@ endif
 
 $(TESTPRODNAME) $(PRODNAME): $(PRODUCT_OBJS) $(PROD_RESS) $(PROD_DEPLIBS)
 
-$(TESTPRODNAME) $(PRODNAME): %$(EXE):
+$(TESTPRODNAME) $(PRODNAME): %$(EXE): | $(INSTALL_LIB)
 	@$(RM) $@
-	$(DEBUGCMD) $(LINK.cpp)
+	$(LINK.cpp)
 	$(MT_EXE_COMMAND)
 
-%_ctdt$(OBJ): %_ctdt.c
+%_ctdt$(OBJ) : %_ctdt.c
 	@$(RM) $@
 	$(COMPILE.ctdt) $<
 
@@ -254,15 +259,13 @@ YACCOPT ?= $($*_YACCOPT)
 	$(MV) $*.tab.c $*.c
 	$(if $(findstring -d, $(YACCOPT)),$(MV) $*.tab.h $*.h,)
 
-# must be a seperate rule since when not using '-d' the
+# must be a separate rule since when not using '-d' the
 # prefix for .h will be different then .c
 %.h: %.c %.y
 
 %.c: %.l
-	@$(RM) $*.yy.c
-	$(LEX) $(LEXOPT) -t $< > $*.yy.c
 	@$(RM) $@
-	$(MV) $*.yy.c $@
+	$(LEX) $(LEXOPT) -o$@ $<
 
 #---------------------------------------------------------------
 # Libraries, shared/DLL and stubs
@@ -301,6 +304,10 @@ $(LOADABLE_SHRLIBNAME): $(LOADABLE_SHRLIB_PREFIX)%$(LOADABLE_SHRLIB_SUFFIX):
 	@$(RM) $@
 	$(LINK.shrlib)
 	$(MT_DLL_COMMAND)
+
+$(LIBNAME) $(SHRLIBNAME) $(LOADABLE_SHRLIBNAME): | $(INSTALL_LIB)
+$(INSTALL_LIB):
+	@$(MKDIR) $@
 
 #---------------------------------------------------------------
 # C++ munching for VxWorks
@@ -359,14 +366,17 @@ ifneq ($(TAPFILES),)
 ifdef RUNTESTS_ENABLED
 	prove --failures --ext .tap --exec "$(CAT)" --color $(TAPFILES)
 endif
+
+CURRENT_TAPFILES := $(wildcard $(TAPFILES))
+CURRENT_JUNITFILES := $(wildcard $(JUNITFILES))
 endif
 
 clean-tests:
-ifneq ($(TAPFILES),)
-	$(RM) $(TAPFILES)
+ifneq ($(CURRENT_TAPFILES),)
+	$(RM) $(CURRENT_TAPFILES)
 endif
-ifneq ($(JUNITFILES),)
-	$(RM) $(JUNITFILES)
+ifneq ($(CURRENT_JUNITFILES),)
+	$(RM) $(CURRENT_JUNITFILES)
 endif
 
 tapfiles: $(TESTSCRIPTS) $(TAPFILES)
@@ -390,7 +400,7 @@ endif
 # Generate a perl program to exec the real test binary.
 %.t: %$(EXE) $(TOOLS)/makeTestfile.pl
 	@$(RM) $@
-	$(PERL) $(TOOLS)/makeTestfile.pl $@ $<
+	$(PERL) $(TOOLS)/makeTestfile.pl $(T_A) $(EPICS_HOST_ARCH) $@ $<
 
 #---------------------------------------------------------------
 # Generate header with version number from VCS
@@ -461,9 +471,11 @@ $(INSTALL_TCLLIB)/%: ../%
 	@$(INSTALL) -d -m $(BIN_PERMISSIONS) $< $(INSTALL_TCLLIB)
 endif
 
+ifneq ($(TCLINDEX),)
 $(INSTALL_TCLLIB)/$(TCLINDEX): $(INSTALL_TCLLIBS)
 	$(ECHO) "Updating $@"
 	$(ECHO) eval auto_mkindex $(INSTALL_TCLLIB) "$(TCLLIBNAME)" | tclsh
+endif
 
 $(INSTALL_LOADABLE_SHRLIBS): $(INSTALL_SHRLIB)/%: %
 	$(ECHO) "Installing loadable shared library $@"
@@ -501,6 +513,26 @@ $(INSTALL_INCLUDE)/compiler/$(CMPLR_CLASS)/%: %
 	$(ECHO) "Installing compiler dependent include file $@"
 	@$(INSTALL) -d -m $(INSTALL_PERMISSIONS) $< $(@D)
 
+$(INSTALL_DOC)/%: %
+	$(ECHO) "Installing doc $@"
+	@$(INSTALL) -d -m $(INSTALL_PERMISSIONS) $< $(INSTALL_DOC)
+
+$(INSTALL_DOC)/%: ../%
+	$(ECHO) "Installing doc $@"
+	@$(INSTALL) -d -m $(INSTALL_PERMISSIONS) $< $(INSTALL_DOC)
+
+$(INSTALL_HTML)/$(HTMLS_DIR)/%: %
+	$(ECHO) "Installing html $@"
+	@$(INSTALL) -d -m $(INSTALL_PERMISSIONS) $< $(@D)
+
+$(INSTALL_HTML)/$(HTMLS_DIR)/%: ../%
+	$(ECHO) "Installing html $@"
+	@$(INSTALL) -d -m $(INSTALL_PERMISSIONS) $< $(@D)
+
+$(INSTALL_HTML)/$(HTMLS_DIR)/%: $(COMMON_DIR)/%
+	$(ECHO) "Installing generated html $@"
+	@$(INSTALL) -d -m $(INSTALL_PERMISSIONS) $< $(@D)
+
 $(INSTALL_TEMPLATES_SUBDIR)/%: ../%
 	$(ECHO) "Installing $@"
 	@$(INSTALL) -d -m $(INSTALL_PERMISSIONS) $< $(@D)
@@ -509,7 +541,7 @@ $(INSTALL_TEMPLATES_SUBDIR)/%: %
 	$(ECHO) "Installing $@"
 	@$(INSTALL) -d -m $(INSTALL_PERMISSIONS) $< $(@D)
 
--include $(CONFIG)/RULES_EXPAND
+include $(CONFIG)/RULES_EXPAND
 
 .PRECIOUS: %.i %.o %.c %.nm %.cpp %.cc
 .PRECIOUS: $(COMMON_INC)
@@ -518,5 +550,9 @@ $(INSTALL_TEMPLATES_SUBDIR)/%: %
 .PHONY: runtests tapfiles clean-tests test-results junitfiles
 .PHONY: checkRelease warnRelease noCheckRelease FORCE
 
+include $(CONFIG)/RULES_COMMON
+
+else
+    $(warning Warning: Base configure/RULES_BUILD file included more than once. \
+        Does configure/RELEASE have multiple pointers to $(EPICS_BASE)?)
 endif # BASE_RULES_BUILD
-#	EOF RULES_BUILD

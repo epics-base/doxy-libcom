@@ -1,4 +1,13 @@
-# <top>/configure/RULES_EXPAND
+#*************************************************************************
+# Copyright (c) 2011 UChicago Argonne LLC, as Operator of Argonne
+#     National Laboratory.
+# Copyright (c) 2002 The Regents of the University of California, as
+#     Operator of Los Alamos National Laboratory.
+# EPICS BASE is distributed subject to a Software License Agreement found
+# in the file LICENSE that is included with this distribution.
+#*************************************************************************
+
+# RULES_EXPAND
 
 vpath %@ $(USR_VPATH) $(ALL_SRC_DIRS)
 
@@ -8,8 +17,7 @@ vpath %@ $(USR_VPATH) $(ALL_SRC_DIRS)
 # Default settings
 EXPAND_TOOL ?= $(PERL) $(TOOLS)/expandVars.pl
 
-EXPANDFLAGS += -t $(INSTALL_LOCATION)
-EXPANDFLAGS += $(addprefix -a ,$(T_A))
+EXPANDFLAGS += -t $(INSTALL_LOCATION) -a $(T_A)
 EXPANDFLAGS += $(addprefix -D ,$(EXPAND_VARS))
 
 # The names of files to be expanded must end with '@'
@@ -18,7 +26,7 @@ EXPANDED = $(EXPAND:%@=%)
 $(EXPANDED): %: %@
 	$(ECHO) "Expanding $< to $@"
 	@$(RM) $@
-	$(EXPAND_TOOL) $(EXPANDFLAGS) $($@_EXPANDFLAGS) $< $@
+	@$(EXPAND_TOOL) $(EXPANDFLAGS) $($@_EXPANDFLAGS) $< $@
 
 clean: expand_clean
 
@@ -62,3 +70,4 @@ $1$(DEP):
 endef
 $(foreach asy, $(sort $(COMMON_ASSEMBLIES) $(ASSEMBLIES)), \
     $(eval $(call ASSEMBLY_DEP_template,$(strip $(asy)))))
+

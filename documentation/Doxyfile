@@ -4,7 +4,7 @@
 
 # Project details
 PROJECT_NAME           = "EPICS Base"
-PROJECT_NUMBER         = 7.0.1.2
+PROJECT_NUMBER         = 7.0.3
 
 # Input paths
 INPUT                  = ../include
