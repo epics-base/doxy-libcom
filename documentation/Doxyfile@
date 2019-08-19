@@ -1,6 +1,13 @@
 # Doxyfile 1.8.7
 
-# This template is used to generate the doxygen config file for EPICS Base
+# If named 'Doxyfile@' this file is a template for generating a
+# doxygen configuration file for EPICS Base. If named 'Doxyfile'
+# this is a doxygen configuration file generated from a template.
+
+# To update the doxygen configuration, always edit the template
+# 'Doxyfile@' by hand and only add configuration options that are
+# not set to the default value for that option. Run 'make' in
+# this directory to expand the template and run doxygen.
 
 #---------------------------------------------------------------------------
 # Project related configuration options
