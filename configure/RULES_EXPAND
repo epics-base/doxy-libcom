@@ -18,9 +18,7 @@ vpath %@ $(USR_VPATH) $(ALL_SRC_DIRS)
 EXPAND_TOOL ?= $(PERL) $(TOOLS)/expandVars.pl
 
 EXPANDFLAGS += -t $(INSTALL_LOCATION)
-ifdef T_A
-  EXPANDFLAGS += -a $(T_A)
-endif
+EXPANDFLAGS += $(addprefix -a ,$(T_A))
 EXPANDFLAGS += $(addprefix -D ,$(EXPAND_VARS))
 
 # The names of files to be expanded must end with '@'
