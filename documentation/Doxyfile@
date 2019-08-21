@@ -41,9 +41,10 @@ HTML_OUTPUT            = @HTML_OUTPUT@
 #---------------------------------------------------------------------------
 # Configuration options related to the LaTeX output
 #---------------------------------------------------------------------------
+GENERATE_LATEX         = NO
 LATEX_OUTPUT           = O.latex
-LATEX_BATCHMODE        = YES
 PAPER_TYPE             = letter
+LATEX_BATCHMODE        = YES
 #---------------------------------------------------------------------------
 # Configuration options related to the preprocessor
 #---------------------------------------------------------------------------
