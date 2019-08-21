@@ -21,6 +21,7 @@ EXPAND_VARS += INCLUDE_PATH=$(INSTALL_INCLUDE)
 EXPAND_VARS += HTML_OUTPUT=$(INSTALL_HTML)/doxygen
 EXPAND_VARS += CMPLR_CLASS=$(CMPLR_CLASS)
 EXPAND_VARS += OS_CLASS=$(OS_CLASS)
+EXPANDFLAGS += '-DCPPFLAGS=$(CPPFLAGS:-D%=%)'
 
 # Run doxygen to generate API documentation from source-files.
 # Requires doxygen, latex, pdflatex and Graphviz (for dot)

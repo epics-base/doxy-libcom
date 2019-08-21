@@ -53,4 +53,5 @@ EXPAND_ONLY_PREDEF     = NO
 INCLUDE_PATH           = ../include \
                          ../include/compiler/gcc \
                          ../include/os/Linux
+PREDEFINED             = _GNU_SOURCE _DEFAULT_SOURCE _X86_64_ UNIX linux
 #---------------------------------------------------------------------------
