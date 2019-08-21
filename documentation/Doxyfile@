@@ -52,6 +52,6 @@ ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = NO
 INCLUDE_PATH           = @INCLUDE_PATH@ \
-                         @INCLUDE_PATH@/compiler/gcc \
-                         @INCLUDE_PATH@/os/Linux
+                         @INCLUDE_PATH@/compiler/@CMPLR_CLASS@ \
+                         @INCLUDE_PATH@/os/@OS_CLASS@
 #---------------------------------------------------------------------------
