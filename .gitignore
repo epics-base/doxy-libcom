@@ -3,6 +3,7 @@
 /html/
 /configure/*.local
 O.*/
+documentation/Doxyfile
 *.orig
 *.log
 .*.swp
