@@ -33,7 +33,9 @@ WARN_IF_UNDOCUMENTED   = NO
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = @INCLUDE_PATH@
+INPUT                  = @INCLUDE_PATH@ \
+                         @INCLUDE_PATH@/compiler/@CMPLR_CLASS@ \
+                         @INCLUDE_PATH@/os/@OS_CLASS@
 #---------------------------------------------------------------------------
 # Configuration options related to the HTML output
 #---------------------------------------------------------------------------
