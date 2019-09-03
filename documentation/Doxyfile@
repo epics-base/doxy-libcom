@@ -57,4 +57,5 @@ INCLUDE_PATH           = @INCLUDE_PATH@ \
                          @INCLUDE_PATH@/compiler/@CMPLR_CLASS@ \
                          @INCLUDE_PATH@/os/@OS_CLASS@
 PREDEFINED             = @CPPFLAGS@
+SKIP_FUNCTION_MACROS   = NO
 #---------------------------------------------------------------------------
