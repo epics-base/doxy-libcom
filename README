@@ -8,21 +8,23 @@ this distribution.
 
 ---------------------------------------------------------
 
-This repository contains a set of C header (include) files
+The doxy-libcom repository contains a set of C header files
 extracted from the development branch of EPICS Base, along
-with a configuration file for Doxygen to tell it how to
+with Makefile rules to tell GNUmake and Doxygen how to
 process those header files.
 
-Every GitHub pull-request (and subsequent commit to that
-branch) made against this repository will be processed by
-Doxygen and the results made available on a website where
-they can be checked - a link to the results from your pull
-request will be sent to you by email when the processing
-is finished. If the output wasn't quite what you wanted it
-to look like, fix your Doxygen annotations and commit and
-push them to your branch (or just commit them if you're
-working directly on Github). Doxygen will redo the
-processing and you'll get another email when it's ready.
+After checking out the branch, type 'make' at the top to
+build the files. Open the html/doxygen/index.html file in
+a browser to look at the results. Subsequently you can run
+'make' inside the documentation directory to speed things
+up a bit.
 
-...
+Various notes for Doxygen:
+
+Please ensure every file begins with these annotations:
+    \file <filename>
+    \brief <file-description>
+We don't have autobrief turned on. The above ensure the
+file and its description are included in the file index.
+
 
