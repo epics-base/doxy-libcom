@@ -11,7 +11,7 @@
  * @author Bob Dalesio
  * @date  21 Sep 1988
  *
- * @brief deﬁnes macros and routines used by the calculation record
+ * @brief Deﬁnes macros and routines used by the calculation record.
  *
  * Deﬁnes several macros and the routines used by the calculation record
  * type calcRecord, access security, and other code, to compile and evaluate
