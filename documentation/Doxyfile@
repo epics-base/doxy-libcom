@@ -17,13 +17,15 @@ PROJECT_NUMBER         = @PROJECT_NUMBER@
 BRIEF_MEMBER_DESC      = YES
 REPEAT_BRIEF           = NO
 ALWAYS_DETAILED_SEC    = NO
+INLINE_INHERITED_MEMB  = YES
 STRIP_FROM_PATH        = @INCLUDE_PATH@
 TAB_SIZE               = 8
 #---------------------------------------------------------------------------
 # Build related configuration options
 #---------------------------------------------------------------------------
 EXTRACT_ALL            = NO
-CASE_SENSE_NAMES       = YES
+EXTRACT_LOCAL_CLASSES  = NO
+CASE_SENSE_NAMES       = NO
 SORT_MEMBER_DOCS       = NO
 #---------------------------------------------------------------------------
 # Configuration options related to warning and progress messages
@@ -36,6 +38,10 @@ WARN_IF_UNDOCUMENTED   = NO
 INPUT                  = @INCLUDE_PATH@ \
                          @INCLUDE_PATH@/compiler/@CMPLR_CLASS@ \
                          @INCLUDE_PATH@/os/@OS_CLASS@
+#---------------------------------------------------------------------------
+# Configuration options related to source browsing
+#---------------------------------------------------------------------------
+SOURCE_BROWSER          = YES
 #---------------------------------------------------------------------------
 # Configuration options related to the HTML output
 #---------------------------------------------------------------------------
@@ -56,6 +62,9 @@ EXPAND_ONLY_PREDEF     = NO
 INCLUDE_PATH           = @INCLUDE_PATH@ \
                          @INCLUDE_PATH@/compiler/@CMPLR_CLASS@ \
                          @INCLUDE_PATH@/os/@OS_CLASS@
-PREDEFINED             = @CPPFLAGS@
+PREDEFINED             = @CPPFLAGS@ __cplusplus
 SKIP_FUNCTION_MACROS   = NO
 #---------------------------------------------------------------------------
+# Configuration options related to the dot tool
+#---------------------------------------------------------------------------
+HAVE_DOT               = YES
