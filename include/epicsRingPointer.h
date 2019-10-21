@@ -18,12 +18,16 @@
  * access the ring simultaneously without requiring mutual exclusion. The
  * locked variant uses an epicsSpinLock, and works with any numbers of writer
  * and reader threads.
- * @note If there is only one writer it is not necessary to lock push. If there
- * is a single reader it is not necessary to lock pop. epicsRingPointerLocked uses a spinlock.
+ * @note Here the terms push and pop are used, which have become familiar
+ * for stack operations (LIFO). It would be better to use the terms 
+ * enqueue and dequeue for FIFO operations.
+ * @note If there is only one writer it is not necessary to lock push. 
+ * If there is a single reader it is not necessary to lock pop. 
+ * epicsRingPointerLocked uses a spinlock.
  *
  * @note Algorithm note:
  *  Space is allocated for one additional element.
- *  A put request is rejected if the it would cause nextPush to equal nextPop
+ *  A put request is rejected if the the ring buffer is full.
  *  The algorithm does not require locking puts for a single writer
  *      or locking of gets for a single reader
  */
@@ -56,7 +60,7 @@ public: /* Functions */
      * Failure means the ring was full
      */
     bool push(T *p);
-    /**@brief Take a element oﬀ the ring
+    /**@brief Take an element oﬀ the ring
      * @return It returns 0 (null) if the ring was empty
      */
     T* pop();
@@ -88,11 +92,13 @@ public: /* Functions */
      */
     bool isFull() const;
     /**@brief Read high water mark 
-     * @return Returns high water mark.
+     * @return Returns the highest number of elements the ring
+     * buffer contained since the water mark has been reset. A new
+     * ring buffer starts with a water mark of 0.
      */
     int getHighWaterMark() const;
     /**@brief Reset high water mark 
-     * High water mark will be set to actual usage
+     * High water mark will be set to the current usage
      */
     void resetHighWaterMark();
 
@@ -120,7 +126,7 @@ typedef void const *epicsRingPointerIdConst;
 /**
  * @brief Create a new ring buﬀer
  * @param size Size of ring buffer to create
- * @return epicsRingPointerId or NULL on non success
+ * @return epicsRingPointerId or NULL on failure
  */
 epicsShareFunc epicsRingPointerId  epicsShareAPI epicsRingPointerCreate(int size);
 /**
@@ -175,21 +181,23 @@ epicsShareFunc int  epicsShareAPI epicsRingPointerGetUsed(epicsRingPointerId id)
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerGetSize(epicsRingPointerId id);
 /**
- * @brief Returns true if the ring is empty, else false
+ * @brief Returns 1 if the ring is empty, else 0
  * @param id epicsRingPointerID returned by a former epicsRingPointerCreate
- * @return Returns true if the ring is empty, else false.
+ * @return Returns 1 if the ring is empty, else 0
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerIsEmpty(epicsRingPointerId id);
 /**
- * @brief Returns true if the ring is full, else false
+ * @brief Returns 1 if the ring is full, else 0
  * @param id epicsRingPointerID returned by a former epicsRingPointerCreate
- * @return Returns true if the ring is full, else false.
+ * @return Returns 1 if the ring is full, else 0
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerIsFull(epicsRingPointerId id);
 /**
  * @brief Get the Highwater mark of the ring buffer
  * @param id epicsRingPointerID returned by a former epicsRingPointerCreate
- * @return Actual Highwater mark
+ * @return Returns the highest number of elements the ring buffer contained
+ * since the water mark has been reset. A new ring buffer starts with the
+ * water mark of 0.
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerGetHighWaterMark(epicsRingPointerIdConst id);
 /**
