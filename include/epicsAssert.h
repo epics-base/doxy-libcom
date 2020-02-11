@@ -30,7 +30,7 @@
  * is suspended. An author may, before the above include line, optionally define a
  * preprocessor macro named epicsAssertAuthor as a string that provides their name and
  * email address if they wish to be contacted when the assertion fires.
- */
+ **/
 
 #ifndef INC_epicsAssert_H
 #define INC_epicsAssert_H
