@@ -6,8 +6,10 @@
 * EPICS BASE is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution. 
 \*************************************************************************/
-/*
- * Compiler specific key words to set up external symbols and entry points
+/** 
+ * @file shareLib.h 
+ * @brief Compiler specific key words to set up
+ *        external symbols and entry points
  *
  * USAGE:
  * There are two distinct classes of keywords in this file:
