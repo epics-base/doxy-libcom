@@ -38,7 +38,7 @@ typedef enum {
 
 #ifdef __cplusplus
 
-/** @breif Create an epicsEvent.
+/** @brief Create an epicsEvent.
  *
  *  The primary use of an event semaphore is for thread synchronization. An example of using an
  *  event semaphore is a consumer thread that processes requests from one or more producer threads.
