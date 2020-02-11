@@ -27,8 +27,8 @@
 #define CALCPERFORM_STACK 80
 
 /**
- * @defgroup macroDefs Definitions/Macros
- * * @{
+ * @defgroup macroDefs
+ * @{
  */
 /**
  * @def INFIX_TO_POSTFIX_SIZE
