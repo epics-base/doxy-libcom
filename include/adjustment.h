@@ -8,9 +8,11 @@
 * in file LICENSE that is included with this distribution.
 \*************************************************************************/
 
-/** \file adjustment.h
- * Header file to describe adjustToWorstCaseAlignment function
+/** 
+ * @file adjustment.h
+ * @brief Declare function `adjustToWorstCaseAlignment`
  *
+ * Declares a single function `adjustToWorstCaseAlignment`.
  */
 
 #ifndef INCadjustmenth
