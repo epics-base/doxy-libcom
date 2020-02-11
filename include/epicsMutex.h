@@ -7,6 +7,31 @@
 * and higher are distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution. 
 \*************************************************************************/
+
+/**@file epicsMutex.h
+ *
+ * @brief Mutual exclusion semaphore
+ *
+ * Mutual exclusion semaphores are for situations requiring mutually exclusive access to
+ * resources. A mutual exclu- sion semaphore may be taken recursively, i.e. can be taken
+ * more than once by the owner thread before releasing it. Recursive takes are useful for
+ * a set of routines that call each other while working on a mutually exclusive resource.
+ *
+ * The typical use of a mutual exclusion semaphore is:
+ @code
+     epicsMutex *plock = new epicsMutex;
+     ...
+     ...
+     plock_>lock();
+     // process resources
+     plock->unlock();
+ @endcode
+ *
+ * @note The implementation:
+ *       - Must implement recursive locking
+ *       - May implement priority inheritance and be deletion safe
+ * @note A posix version is implemented via pthreads.
+ **/
 #ifndef epicsMutexh
 #define epicsMutexh
 
@@ -32,12 +57,53 @@ public:
     typedef epicsGuard<epicsMutex> release_t;
     class mutexCreateFailed; /* exception payload */
     class invalidMutex; /* exception payload */
+
+	/**@brief Create a mutual exclusion semaphore.
+     **/
     epicsMutex ();
+
+	/**@brief Create a mutual exclusion semaphore.
+     *
+     * @param *pFileName pointer to target file name.
+     * @param lineno Integer line number
+     **/
     epicsMutex ( const char *pFileName, int lineno );
+
+    /**@brief Remove the semaphore and any resources it uses. Any further use of the
+     * semaphore results in unknown (most cetainly bad) results.
+     **/
     ~epicsMutex ();
+
+	/**@brief Display information about the semaphore.
+     *
+     * @note Results are architecture dependant.
+     *
+     * @param level Desired information level to report
+     **/
     void show ( unsigned level ) const;
-    void lock (); /* blocks until success */
+
+    /**@brief Wait until the resource is free (blocks until success).
+     *
+     * @note After a successful lock additional, i.e. recursive, locks of any type can
+     * be issued but each must have an associated unlock.
+     **/
+    void lock ();
+
+    /**@brief Release the resource.
+     *
+     * @note If a thread issues recursive locks, there must be an unlock for each lock.
+     **/
     void unlock ();
+
+    /**@brief Similar to lock except that, if the resource is owned by another thread,
+     * the call completes immediately.
+     *
+     * @note The return value is:
+     *       - False if resource is not owned by the caller
+     *       - True if resource is owned by the caller
+     *
+     * @return If the resource is owned by the caller
+     **/
     bool tryLock (); /* true if successful */
 private:
     epicsMutexId id;
