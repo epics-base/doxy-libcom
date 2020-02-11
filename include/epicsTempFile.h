@@ -7,7 +7,9 @@
 * in file LICENSE that is included with this distribution. 
 \*************************************************************************/
 
-/* epicsTempFile.h */
+/** 
+ * @file epicsTempFile.h
+ **/
 
 #ifndef INC_epicsTempFile_H
 #define INC_epicsTempFile_H
@@ -20,6 +22,8 @@
 extern "C" {
 #endif
 
+/** Can be called to open unique filenames FILE* pointers.
+ **/
 epicsShareFunc FILE * epicsShareAPI epicsTempFile(void);
 
 #ifdef  __cplusplus
