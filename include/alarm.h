@@ -6,11 +6,14 @@
 * EPICS BASE is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution. 
 \*************************************************************************/
-/* Alarm definitions, must match menuAlarmSevr.dbd and menuAlarmStat.dbd */
 
-/*
- *      Authors: Bob Dalesio and Marty Kraimer
- *      Date:    11-7-90
+/**
+ * @file alarm.h
+ * @brief Setup alarm definitions
+ * @author Bob Dalesio and Marty Kraimer
+ *
+ * Alarm definitions 
+ * @note Must match menuAlarmSevr.dbd and menuAlarmStat.dbd
  */
 
 #ifndef INC_alarm_H
@@ -22,52 +25,59 @@
 extern "C" {
 #endif
 
-
+/** 
+ * @def NO_ALARM
+ * @brief defines NO_ALARM as 0
+ */
 #define NO_ALARM            0
 
-/* ALARM SEVERITIES - must match menuAlarmSevr.dbd */
-
+//! @enum epicsAlarmSeverity assigns alarm severities
+//!  @note must match menuAlarmSevr.dbd
 typedef enum {
-    epicsSevNone = NO_ALARM,
-    epicsSevMinor,
-    epicsSevMajor,
-    epicsSevInvalid,
-    ALARM_NSEV
+    epicsSevNone = NO_ALARM, //!< no alarm
+    epicsSevMinor,           //!< minor severity
+    epicsSevMajor,           //!< major severity
+    epicsSevInvalid,         //!< invalid severity
+    ALARM_NSEV               //!< Nr. of alarm severities
 } epicsAlarmSeverity;
 
+/**
+ * @defgroup alarmDefs alarm 
+ * @{
+ */
+//! @def alarm definitions
 #define firstEpicsAlarmSev  epicsSevNone
 #define MINOR_ALARM         epicsSevMinor
 #define MAJOR_ALARM         epicsSevMajor
 #define INVALID_ALARM       epicsSevInvalid
 #define lastEpicsAlarmSev   epicsSevInvalid
 
-
-/* ALARM STATUS - must match menuAlarmStat.dbd */
-
+//! @enum epicsAlarmCondition assigns alarm conditions
+//!  @note must match menuAlarmStat.dbd
 typedef enum {
-    epicsAlarmNone = NO_ALARM,
-    epicsAlarmRead,
-    epicsAlarmWrite,
-    epicsAlarmHiHi,
-    epicsAlarmHigh,
-    epicsAlarmLoLo,
-    epicsAlarmLow,
-    epicsAlarmState,
-    epicsAlarmCos,
-    epicsAlarmComm,
-    epicsAlarmTimeout,
-    epicsAlarmHwLimit,
-    epicsAlarmCalc,
-    epicsAlarmScan,
-    epicsAlarmLink,
-    epicsAlarmSoft,
-    epicsAlarmBadSub,
-    epicsAlarmUDF,
-    epicsAlarmDisable,
-    epicsAlarmSimm,
-    epicsAlarmReadAccess,
-    epicsAlarmWriteAccess,
-    ALARM_NSTATUS
+    epicsAlarmNone = NO_ALARM, //!< no alarm
+    epicsAlarmRead,            //!< read alarm (hw read?)
+    epicsAlarmWrite,           //!< write alarm (hw write?)
+    epicsAlarmHiHi,            //!< High high limit alarm
+    epicsAlarmHigh,            //!< High limit alarm
+    epicsAlarmLoLo,            //!< Low low limit alarm
+    epicsAlarmLow,             //!< Low limit alarm
+    epicsAlarmState,           //!< State alarm (e.g. off/on)
+    epicsAlarmCos,             //!< Change of state alarm
+    epicsAlarmComm,            //!< Communication alarm
+    epicsAlarmTimeout,         //!< Timeout alarm
+    epicsAlarmHwLimit,         //!< Hardware limit alarm
+    epicsAlarmCalc,            //!< Alarms from calc/calcout record
+    epicsAlarmScan,            //!< Scan alarm, e.g. record not processed (10 times) or not in desired scan list
+    epicsAlarmLink,            //!< Link alarm
+    epicsAlarmSoft,            //!< Soft alarm, e.g. in sub record if subroutine gives error
+    epicsAlarmBadSub,          //!< Bad subroutine alarm, e.g. in sub record subroutine not defined
+    epicsAlarmUDF,             //!< Undefined alarm state, e.g. record never processed
+    epicsAlarmDisable,         //!< Alarm disabled
+    epicsAlarmSimm,            //!< Alarm simulation
+    epicsAlarmReadAccess,      //!< Alarm on read access (?AlarmRead)
+    epicsAlarmWriteAccess,     //!< Alarm on write access (?AlarmWrite)
+    ALARM_NSTATUS              //!< Nr. of alarm conditions
 } epicsAlarmCondition;
 
 #define firstEpicsAlarmCond epicsAlarmNone
@@ -93,10 +103,11 @@ typedef enum {
 #define READ_ACCESS_ALARM   epicsAlarmReadAccess
 #define WRITE_ACCESS_ALARM  epicsAlarmWriteAccess
 #define lastEpicsAlarmCond  epicsAlarmWriteAccess
+/** @} */
 
-
-/* Name string arrays */
-
+/**
+ * @var Name string arrays
+ */
 epicsShareExtern const char *epicsAlarmSeverityStrings [ALARM_NSEV];
 epicsShareExtern const char *epicsAlarmConditionStrings [ALARM_NSTATUS];
 
