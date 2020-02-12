@@ -68,5 +68,5 @@ SKIP_FUNCTION_MACROS   = NO
 # Configuration options related to the dot tool
 #---------------------------------------------------------------------------
 HAVE_DOT               = YES
-DOT_GRAPH_MAX_NODES    = 70
+
 
