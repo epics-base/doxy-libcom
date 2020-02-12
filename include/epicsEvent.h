@@ -7,38 +7,12 @@
 * in file LICENSE that is included with this distribution. 
 \*************************************************************************/
 
-/** @file epicsEvent.h **/
-
-#ifndef epicsEventh
-#define epicsEventh
-
-#include "shareLib.h"
-
-/** @brief Defines the C++ and C API's for a simple binary semaphore. If multiple threads are
+/** @file epicsEvent.h
+ *
+ *  @brief Create an epicsEvent.
+ *
+ *  Defines the C++ and C API's for a simple binary semaphore. If multiple threads are
  *  waiting on the same event, only one of them will be woken when the event is signalled.
- **/
-
-typedef struct epicsEventOSD *epicsEventId;
-
-typedef enum {
-    epicsEventOK = 0,
-    epicsEventWaitTimeout,
-    epicsEventError
-} epicsEventStatus;
-
-/* Backwards compatibility */
-#define epicsEventWaitStatus epicsEventStatus
-#define epicsEventWaitOK epicsEventOK
-#define epicsEventWaitError epicsEventError
-
-typedef enum {
-    epicsEventEmpty,
-    epicsEventFull
-} epicsEventInitialState;
-
-#ifdef __cplusplus
-
-/** @brief Create an epicsEvent.
  *
  *  The primary use of an event semaphore is for thread synchronization. An example of using an
  *  event semaphore is a consumer thread that processes requests from one or more producer threads.
@@ -62,6 +36,32 @@ typedef enum {
        pevent->signal();
  @endcode
  **/
+
+#ifndef epicsEventh
+#define epicsEventh
+
+#include "shareLib.h"
+
+typedef struct epicsEventOSD *epicsEventId;
+
+typedef enum {
+    epicsEventOK = 0,
+    epicsEventWaitTimeout,
+    epicsEventError
+} epicsEventStatus;
+
+/* Backwards compatibility */
+#define epicsEventWaitStatus epicsEventStatus
+#define epicsEventWaitOK epicsEventOK
+#define epicsEventWaitError epicsEventError
+
+typedef enum {
+    epicsEventEmpty,
+    epicsEventFull
+} epicsEventInitialState;
+
+#ifdef __cplusplus
+
 class epicsShareClass epicsEvent {
 public:
     /**@brief An epicsEvent can be created empty or full.
