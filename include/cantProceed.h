@@ -6,6 +6,26 @@
 * EPICS BASE is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution. 
 \*************************************************************************/
+
+/**
+ * @file cantProceed.h
+ * @brief declares routines that are provided for code that can’t proceed when an error occurs. 
+ *
+ *cantProceed.h declares routines that are provided for code that can’t proceed when an error occurs.
+@code
+void cantProceed(const char ⋆errorMessage, ...); 
+void ⋆callocMustSucceed(size_t count, size_t size,const char ⋆errorMessage); 
+void ⋆mallocMustSucceed(size_t size, const char ⋆errorMessage);
+@endcode
+
+ * cantProceed() accepts a printf format string and variable number of 
+ * arguments; it displays the error message and suspends the current task. 
+ * It will never return. callocMustSucceed() and mallocMustSucceed() can be 
+ * used in place of calloc() and malloc(). If size or count are zero, or the 
+ * memory allocation fails, they output a message and call cantProceed(). 
+ */
+
+
 #ifndef INCcantProceedh
 #define INCcantProceedh
 
