@@ -18,8 +18,8 @@
  * can access the ring simultaneously without requiring mutual exclusion.
  * The locked variant uses an epicsSpinLock, and works with any numbers of
  * writer and reader threads.
- * @note If there is only one writer it is not necessary to lock for put
- * If there is a single reader it is not necessary to lock for puts 
+ * @note If there is only one writer it is not necessary to lock for puts
+ * If there is a single reader it is not necessary to lock for pops 
  * epicsRingBytesLocked uses a spinlock.
  */
 
@@ -38,13 +38,13 @@ typedef void const *epicsRingBytesIdConst;
 /**
  * @brief Create a new ring buﬀer
  * @param nbytes Size of ring buffer to create
- * @return Ring buffer Id or NULL on non success
+ * @return Ring buffer Id or NULL on failure
  */
 epicsShareFunc epicsRingBytesId  epicsShareAPI epicsRingBytesCreate(int nbytes);
 /**
  * @brief Create a new ring buﬀer, secured by a spinlock
  * @param nbytes Size of ring buffer to create
- * @return Ring buffer Id or NULL on non success
+ * @return Ring buffer Id or NULL on failure
  */
 epicsShareFunc epicsRingBytesId  epicsShareAPI epicsRingBytesLockedCreate(int nbytes);
 /**
@@ -53,20 +53,20 @@ epicsShareFunc epicsRingBytesId  epicsShareAPI epicsRingBytesLockedCreate(int nb
  */
 epicsShareFunc void epicsShareAPI epicsRingBytesDelete(epicsRingBytesId id);
 /**
- * @brief Read data out of the ringbuffer
+ * @brief Read data out of the ring buffer
  * @param id RingbufferID returned by a former epicsRingBytesCreate 
  * @param value Up to nbytes get moved from the ring buffer to value 
- * @param nbytes Get nbytes from ringbuffer
+ * @param nbytes Get nbytes from ring buffer
  * @return The number of bytes actually moved is returned.
  */
 epicsShareFunc int  epicsShareAPI epicsRingBytesGet(
     epicsRingBytesId id, char *value,int nbytes);
 /**
- * @brief Move data to the ringbuffer
+ * @brief Move data to the ring buffer
  * @param id RingbufferID returned by a former epicsRingBytesCreate 
  * @param value Move nbytes from value to the ring buﬀer if there is enough
  * free space available to hold them. 
- * @param nbytes Move nbytes to the ringbuffer
+ * @param nbytes Move nbytes to the ring buffer
  * @return The number of bytes actually moved is returned, which will
  * be zero if insuﬃcient space exists.
  */
@@ -100,17 +100,19 @@ epicsShareFunc int  epicsShareAPI epicsRingBytesSize(epicsRingBytesId id);
 /**
  * @brief Test if the ring buﬀer is currently empty.
  * @param id RingbufferID returned by a former epicsRingBytesCreate 
- * @return true, false
+ * @return 1, 0
  */
 epicsShareFunc int  epicsShareAPI epicsRingBytesIsEmpty(epicsRingBytesId id);
 /**
  * @brief Test if the ring buﬀer is currently full.
  * @param id RingbufferID returned by a former epicsRingBytesCreate 
- * @return true, false
+ * @return 1, 0
  */
 epicsShareFunc int  epicsShareAPI epicsRingBytesIsFull(epicsRingBytesId id);
 /**
- * @brief Get the Highwater mark of the ring buffer
+ * @brief Returns the highest number of bytes the ring buffer contained
+ * since the water mark has beeb reset. A new ring buffer starts with a water
+ * mark of 0.
  * @param id RingbufferID returned by a former epicsRingBytesCreate 
  * @return Actual Highwater mark
  */
