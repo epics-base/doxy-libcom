@@ -7,10 +7,15 @@
 * in file LICENSE that is included with this distribution. 
 \*************************************************************************/
 
-/*
- * This file is deprecated, use alarm.h instead.
+/**
+ * @file alarmString.h
+ * @brief Define String named for alarm status
+ * @author Unknown
+ * @date xxx
  *
- * Old string names for alarm status and severity values
+ * String names for alarm status and severity values
+ *
+ * @note This file is deprecated, use alarm.h instead.
  */
 
 #ifndef INC_alarmString_H
@@ -22,9 +27,15 @@
 extern "C" {
 #endif
 
-/* Old versions of alarmString.h defined these names: */
-
+/**
+ * @def alarmSeverityString
+ * @brief Defines alias for epicsAlarmSeverityStrings
+ */
 #define alarmSeverityString epicsAlarmSeverityStrings
+/**
+ * @def alarmStatusString
+ * @brief Defines alias for epicsAlarmConditionStrings
+ */
 #define alarmStatusString epicsAlarmConditionStrings
 
 
