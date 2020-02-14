@@ -5,15 +5,14 @@
 *     Operator of Los Alamos National Laboratory.
 * EPICS BASE Versions 3.13.7
 * and higher are distributed subject to a Software License Agreement found
-* in file LICENSE that is included with this distribution. 
+* in file LICENSE that is included with this distribution.
 \*************************************************************************/
-
-/** @file epicsExport.h */
 
 #ifndef INC_epicsExport_H
 #define INC_epicsExport_H
 
-/** @brief Exporting IOC objects.
+/** @file epicsExport.h
+ *  @brief Exporting IOC objects.
  *
  * This header is unique, as it defines epicsExportSharedSymbols and thus
  * triggers a transition between importing declarations from other libraries,
