@@ -11,9 +11,9 @@
  * @author Bob Dalesio
  * @date  21 Sep 1988
  *
- * @brief Deﬁnes macros and routines used by the calculation record.
+ * @brief Defines macros and routines used by the calculation record.
  *
- * Deﬁnes several macros and the routines used by the calculation record
+ * Defines several macros and the routines used by the calculation record
  * type calcRecord, access security, and other code, to compile and evaluate
  * mathematical expressions.
  */
@@ -132,24 +132,24 @@ extern "C" {
 #endif
 
 /**
- * Converts an expression from inﬁx to postﬁx notation
+ * Converts an expression from infix to postfix notation
  *
  * @param pinfix pointer to the infix string
  * @param ppostfix pointer to the postfix notation
  * @param perror place for an error code
  * @return non-zero value in case of error 
  *
- * It is the callers’s responsibility to ensure that ppostﬁx points 
- * to suﬃcient storage to hold the postﬁx expression. The macro 
+ * It is the callers's responsibility to ensure that ppostfix points 
+ * to sufficient storage to hold the postfix expression. The macro 
  * INFIX_TO_POSTFIX_SIZE(n) can be used to calculate an appropriate
- * postﬁx buﬀer size from the length of the inﬁx buﬀer.
+ * postfix buffer size from the length of the infix buffer.
  *
  * @note "n" must count the terminating nil byte too.
  *
- * -# The **inﬁx expressions** that can be used are very similar
+ * -# The **infix expressions** that can be used are very similar
  * to the C expression syntax, but with some additions and subtle
- * diﬀerences in operator meaning and precedence. The string may
- * contain a series of expressions separated by a semi-colon character ‘;’
+ * differences in operator meaning and precedence. The string may
+ * contain a series of expressions separated by a semi-colon character ';'
  * any one of which may actually provide the calculation result; however
  * all of the other expressions included must assign their result to
  * a variable. All alphabetic elements described below are case independent,
@@ -159,7 +159,7 @@ extern "C" {
  *
  * -# ***Numeric Literals***
  *  The simplest expression element is a numeric literal, any (positive)
- *  number expressed using the standard ﬂoating point syntax that can be stored
+ *  number expressed using the standard floating point syntax that can be stored
  *  as a double precision value. This now includes the values Infinity and
  *  NaN (not a number). Note that negative numbers will be encoded as a
  *  positive literal to which the unary negate operator is applied.
@@ -184,8 +184,8 @@ extern "C" {
  *  refers to the previous result of this calculation. The software that
  *  makes use of the expression evaluation code should document how the
  *  individual variables are given values; for the calc record type the input
- *  links INPA through INPL can be used to obtain these from other record ﬁelds,
- *  and VAL refers to the the VAL ﬁeld (which can be overwritten from outside
+ *  links INPA through INPL can be used to obtain these from other record fields,
+ *  and VAL refers to the the VAL field (which can be overwritten from outside
  *  the record via Channel Access or a database link).
  *
  * -# ***Variable Assignment Operator***
@@ -193,30 +193,30 @@ extern "C" {
  *  any of the single letter variables, which can then be used in another
  *  sub-expression. The variable assignment operator is the character pair
  *  := and must immediately follow the name of the variable to receive the
- *  expression value. Since the inﬁx string must return exactly one value, every
+ *  expression value. Since the infix string must return exactly one value, every
  *  expression string must have exactly one sub-expression that is not an
  *  assignment, which can appear anywhere in the string. Sub-expressions within
  *  the string are separated by a semi-colon character.
  *
  *    - Examples: 
  *      - B; B:=A
- *      - i:=i+1; a⋆sin(i⋆D2R)
+ *      - i:=i+1; a*sin(i*D2R)
  *
  * -# ***Arithmetic Operators***
- *  The usual binary arithmetic operators are provided: + - ⋆ and / with their
+ *  The usual binary arithmetic operators are provided: + - * and / with their
  *  usual relative precedence and left-to-right associativity, and - may also
  *  be used as a unary negate operator where it has a higher precedence and
  *  associates from right to left. There is no unary plus operator, so numeric
  *  literals cannot begin with a + sign.
  *
  *    - Examples: 
- *      - a⋆b + c
+ *      - a*b + c
  *      - a/-4 - b
  *
  *  Three other binary operators are also provided: % is the integer modulo operator,
- *  while the synonymous operators ⋆⋆ and ̂ raise their left operand to the power of
- *  the right operand. % has the same precedence and associativity as ⋆ and /, while
- *  the power operators associate left-to-right and have a precedence in between ⋆ and
+ *  while the synonymous operators ** and ^ raise their left operand to the power of
+ *  the right operand. % has the same precedence and associativity as * and /, while
+ *  the power operators associate left-to-right and have a precedence in between * and
  *  unary minus.
  *
  *    - Examples: 
@@ -224,8 +224,8 @@ extern "C" {
  *      - d:=a/10%10;
  *      - c:=a/100%10;
  *      - b:=a/1000%10;
- *      - b⋆4096+c⋆256+d⋆16+e
- *      - sqrt(a⋆⋆2 + b⋆⋆2)
+ *      - b*4096+c*256+d*16+e
+ *      - sqrt(a**2 + b**2)
  *     
  * -# ***Algebraic Functions***
  *  Various algebraic functions are available which take parameters inside
@@ -259,14 +259,14 @@ extern "C" {
  *     - Hyperbolic tangent: tanh(a)
  *
  * -# ***Numeric Functions***
- *  The numeric functions perform operations related to the ﬂoating point
+ *  The numeric functions perform operations related to the floating point
  *  numeric representation and truncation or rounding.
  *    - Round up to next integer: ceil(a)
  *    - Round down to next integer: floor(a)
  *    - Round to nearest integer: nint(a)
- *    - Test for inﬁnite result: isinf(a)
+ *    - Test for infinite result: isinf(a)
  *    - Test for any non-numeric values: isnan(a, ...)
- *    - Test for all ﬁnite, numeric values: finite(a, ...)
+ *    - Test for all finite, numeric values: finite(a, ...)
  *    - Random number between 0 and 1: rndm
  *
  * -# ***Boolean Operators***
@@ -279,8 +279,8 @@ extern "C" {
  *
  * -# ***Bitwise Operators***
  * The bitwise operators convert their arguments to an integer (by truncation),
- * perform the appropriate bitwise operation and convert back to a ﬂoating point
- * value. Unlike in C though, ̂ is not a bitwise exclusive-or operator.
+ * perform the appropriate bitwise operation and convert back to a floating point
+ * value. Unlike in C though, ^ is not a bitwise exclusive-or operator.
  *
  *    - Bitwise and: a & b or a and b
  *    - Bitwise or: a | b or a or b
@@ -321,9 +321,9 @@ epicsShareFunc long
  *
  * @param parg Pointer to an array of double values for the arguments A-L
  * that can appear in the expression. Note that the argument values may be
- * modiﬁed if the expression uses the assignment operator.
- * @param presult Where to put the calculated result, which may be a NaN or Inﬁnity.
- * @param ppostfix The postﬁx expression created by postﬁx().
+ * modified if the expression uses the assignment operator.
+ * @param presult Where to put the calculated result, which may be a NaN or Infinity.
+ * @param ppostfix The postfix expression created by postfix().
  * @return Status value 0 for OK, or non-zero if an error is discovered
  * during the evaluation process.
  */
@@ -334,14 +334,14 @@ epicsShareFunc long
  * Discover used or modified expression arguments
  *
  * Software using the calc subsystem may need to know what expression arguments are
- * used and/or modiﬁed by a particular expression. It can discover this from the
- * postﬁx string by calling calcArgUsage(), which takes two pointers pinputs
+ * used and/or modified by a particular expression. It can discover this from the
+ * postfix string by calling calcArgUsage(), which takes two pointers pinputs
  * and pstores to a pair of unsigned long bitmaps which return that information
  * to the caller. Passing a NULL value for either of these pointers is legal
  * if only the other is needed.
- * @param ppostfix The postﬁx expression created by postﬁx().
+ * @param ppostfix The postfix expression created by postfix().
  * @param pinputs Bitmap pointer
- * The least signﬁcant bit (bit 0) of the bitmap at *pinputs will be set if the
+ * The least signficant bit (bit 0) of the bitmap at *pinputs will be set if the
  * expression depends on the argument A, and so on through bit 11 for the argument L.
  * An argument that is not used until after a value has been assigned
  * to it will not be set in the pinputs bitmap, thus the bits can be used to determine
@@ -350,7 +350,7 @@ epicsShareFunc long
  * @param pstores Bitmap pointer.
  * Bit 0 of the bitmap at *pstores will be set if the expression assigns a value to
  * the argument A. 
- * @return The return value will be non-zero if the ppostﬁx expression was
+ * @return The return value will be non-zero if the ppostfix expression was
  * illegal, otherwise 0.
  */
 epicsShareFunc long
@@ -361,7 +361,7 @@ epicsShareFunc long
  * @param error error code
  * @return  string representation of the error code
  *
- * The error codes deﬁned above as a series of macros with names starting CALC_ERR_.
+ * The error codes defined above as a series of macros with names starting CALC_ERR_.
  * @note Changes in the errors must also be made in calcErrorStr()
  */
 epicsShareFunc const char *

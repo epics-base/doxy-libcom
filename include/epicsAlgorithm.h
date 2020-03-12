@@ -3,9 +3,8 @@
 *     National Laboratory.
 * Copyright (c) 2002 The Regents of the University of California, as
 *     Operator of Los Alamos National Laboratory.
-* EPICS BASE Versions 3.13.7
-* and higher are distributed subject to a Software License Agreement found
-* in file LICENSE that is included with this distribution. 
+* EPICS BASE is distributed subject to a Software License Agreement found
+* in file LICENSE that is included with this distribution.
 \*************************************************************************/
 /**
  * @file epicsAlgorithm.h
@@ -13,7 +12,7 @@
  *
  * @brief Contains a few templates out of the C++ standard header algorithm
  *
- * @note The templates are provided here in a much smaller ﬁle. Standard algorithm
+ * @note The templates are provided here in a much smaller file. Standard algorithm
  * contains many templates for sorting and searching through C++ template containers
  * which are not used in EPICS. If all you need from there is std::min(),
  * std::max() and/or std::swap() your code may compile faster if you include
