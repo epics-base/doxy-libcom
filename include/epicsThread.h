@@ -5,20 +5,20 @@
 *     Operator of Los Alamos National Laboratory.
 * Copyright (c) 2013 ITER Organization.
 * EPICS BASE is distributed subject to a Software License Agreement found
-* in file LICENSE that is included with this distribution. 
+* in file LICENSE that is included with this distribution.
 \*************************************************************************/
 
-/** 
+/**
  * \file epicsThread.h
  *
- * C++ and C descriptions for a thread.
+ * \brief C++ and C descriptions for a thread.
  *
  * The epicsThread API is meant as a somewhat minimal interface for
  * multithreaded applications. It can be implementedon a wide variety of
  * systems with the restriction that the system MUST support a
  * multithreaded environment.
  * A POSIX pthreads version is provided.
- * 
+ *
  * The interface provides the following thread facilities,
  * with restrictions as noted:
  * - Life cycle: a thread starts life as a result of a call to
@@ -116,7 +116,7 @@ typedef epicsThreadId epicsThreadOnceId;
  * -# myInitFunc will only be called only once.
  * -# myInitFunc will have re-turned before any other epicsThreadOnce
  *   call returns.
- * 
+ *
  * Note that myInitFunc must not call epicsThreadOnce with the same
  * onceId.
  **/
@@ -149,14 +149,19 @@ epicsShareFunc void epicsShareAPI epicsThreadExitMain(void);
  *        calling epicsThreadGetStackSize().
  * \param funptr Function that implements the thread.
  * \param parm single argument passed to funptr.
+ * \return thread id or zero on failure.
  **/
 epicsShareFunc epicsThreadId epicsShareAPI epicsThreadCreate (
     const char * name, unsigned int priority, unsigned int stackSize,
     EPICSTHREADFUNC funptr,void * parm );
 
+/**
+ * Create a new thread, see epicsThreadCreate() for details. Does not
+ * return if the thread could not be created.
+ **/
 epicsShareFunc epicsThreadId epicsShareAPI epicsThreadMustCreate (
     const char * name, unsigned int priority, unsigned int stackSize,
-    EPICSTHREADFUNC funptr,void * parm ); 
+    EPICSTHREADFUNC funptr,void * parm );
 
 /**
  * This causes the calling thread to suspend. The only way it can resume
@@ -221,11 +226,11 @@ epicsShareFunc int epicsShareAPI epicsThreadIsSuspended(epicsThreadId id);
 /**
  * Sleep for the specified period of time, i.e. sleep without using the
  * cpu.
- * 
+ *
  * If delay is >0 then the thread will sleep at least until the next
  * clock tick. The exact time is determined by the underlying
  * architecture.
- * 
+ *
  * If delay is <=0 then a delay of 0 is requested of the underlying
  * architecture. What happens is architecture dependent but often it
  * allows other threads of the same priority to run.
@@ -305,7 +310,7 @@ epicsShareFunc void epicsShareAPI epicsThreadShowAll(unsigned int level);
 epicsShareFunc void epicsShareAPI epicsThreadShow(
     epicsThreadId id,unsigned int level);
 
-/** 
+/**
  * Hooks called when a thread starts, map function called once for every thread.
  **/
 typedef void (*EPICS_THREAD_HOOK_ROUTINE)(epicsThreadId id);
@@ -341,7 +346,7 @@ typedef struct epicsThreadPrivateOSD * epicsThreadPrivateId;
  * variable to store private data. The only code in base that currently
  * needs this facility is channel access. A library that needs a private
  * variable should make exactly one call to epicsThreadPrivateCreate()
- * and store the index returned. Each thread can later call 
+ * and store the index returned. Each thread can later call
  * epicsThreadPrivateGet() and epicsThreadPrivateSet() with that index
  * to access a thread-specific pointer store.
  **/
@@ -376,7 +381,7 @@ epicsShareFunc void * epicsShareAPI epicsThreadPrivateGet(epicsThreadPrivateId);
 /**
  * Code using the C++ API must provide a class that derives from
  * epicsThreadRunable.
- * 
+ *
  * For example:
  * \code{.cpp}
  * class myThread: public epicsThreadRunable {
@@ -386,19 +391,19 @@ epicsShareFunc void * epicsShareAPI epicsThreadPrivateGet(epicsThreadPrivateId);
  *     virtual void run();
  *     epicsThread thread;
  * }
- * 
+ *
  * myThread::myThread(int arg,const char*name) :
  *   thread(*this,name,epicsThreadGetStackSize(epicsThreadStackSmall),50) {
  *     thread.start();
  * }
- * 
+ *
  * myThread::~myThread() {}
- * 
+ *
  * void myThread::run() {
  *   // ...
  * }
  * \endcode
- **/ 
+ **/
 
 class epicsShareClass epicsThreadRunable {
 public:
@@ -411,10 +416,10 @@ extern "C" void epicsThreadCallEntryPoint ( void * );
 
 /**
  * The C++ interface is a wrapper around the C interface.
- * 
+ *
  * Two differences are the method start and the class
- * epicsThreadRunable. 
- * 
+ * epicsThreadRunable.
+ *
  * The method start must not be called until after
  * the epicsThread constructor has returned. Calling the start method
  * allows the run method of the epicsThreadRunableobject to be executed
@@ -427,7 +432,7 @@ public:
     ~epicsThread () throw ();
     void start () throw ();
     void exitWait () throw ();
-    bool exitWait ( const double delay ) throw (); 
+    bool exitWait ( const double delay ) throw ();
     static void exit ();
     void resume () throw ();
     void getName ( char * name, size_t size ) const throw ();
@@ -464,7 +469,7 @@ private:
     epicsThread ( const epicsThread & );
     epicsThread & operator = ( const epicsThread & );
     friend void epicsThreadCallEntryPoint ( void * );
-    void printLastChanceExceptionMessage ( 
+    void printLastChanceExceptionMessage (
         const char * pExceptionTypeName,
         const char * pExceptionContext );
     /* exceptions */
@@ -479,7 +484,7 @@ protected:
 };
 
 template < class T >
-class epicsThreadPrivate : 
+class epicsThreadPrivate :
     private epicsThreadPrivateBase {
 public:
     epicsThreadPrivate ();
