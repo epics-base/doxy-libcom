@@ -12,25 +12,25 @@
  * @brief The generalTime framework provides a mechanism for several time providers to be
  * present within the system.
  *
- * There are two types of provider, one type for the current time and one type for the
- * current time and one type for providing Time Event times. Each time provider has a
- * time priority, and installed providers are queried in priority order whenever a time
+ * There are two types of time provider, one type provides the current wall-clock
+ * time, the other provides Event System times. Each time provider is registered with
+ * a priority, and installed providers are queried in priority order whenever a time
  * is requested, until one returns successfully. Thus there is a fallback from higher
  * priority providers (smaller value of priority) to lower priority providers (larger
- * value of priority) if te higher priority ones fail. Each architecture has a "last
+ * value of priority) if the highest priority ones fail. Each architecture has a "last
  * resort" provider, installed at priority 999, usually based on the system clock, which
  * is used in the absence of any other provider.
  *
- * Targets running vxWorks and RTEMS have an NTP provider installed at priority 100.
+ * Targets running VxWorks and RTEMS have an NTP provider installed at priority 100.
  *
  * Registered providers may also add an interrupt-safe routine that will be called from
  * the epicsTimeGetCurrentInt() or epicsTimeGetEventInt() API routines. These interfaces
- * do not check the priority queue, and will only succeed if the last-used provider has
+ * cannot check the priority queue, so will only succeed if the last-used provider has
  * registered a suitable routine.
  *
  * @note There are two interfaces to this framework, epicsGeneralTime.h for consumers
- * that wish to get a time and query the framework, and generalTimeSup.h for providers
- * that supply timestamps.
+ * to obtain a time and query the framework, and generalTimeSup.h for providers
+ * that can supply timestamps.
  **/
 
 #ifndef INC_epicsGeneralTime_H
@@ -43,7 +43,7 @@ extern "C" {
 #endif
 
 /**@def NUM_TIME_EVENTS
- * @brief The number of timed events that are validated.
+ * @brief The number of time events that are validated.
  *
  * Time Events numbered 0 through (NUM_TIME_EVENTS-1) are validated by code in
  * epicsGeneralTime.c that tests for advancing timestamps and enforces that
@@ -55,10 +55,10 @@ extern "C" {
  **/
 #define NUM_TIME_EVENTS 256
 
-/**@brief Initialise the framework. This is called automatically by any function
- * that requires the framework.
+/**@brief Initialise the framework.
  *
- * @note It does not need to be called explicitly.
+ * This routine is called automatically by any function that requires the
+ * framework. It does not need to be called explicitly.
  **/
 epicsShareFunc void generalTime_Init(void);
 
@@ -136,13 +136,14 @@ epicsShareFunc const char * generalTimeEventProviderName(void);
  **/
 epicsShareFunc const char * generalTimeHighestCurrentName(void);
 
-/* Original names, for compatibility */
+/** @brief Old name provided for backwards compatibility */
 #define generalTimeCurrentTpName generalTimeCurrentProviderName
+/** @brief Old name provided for backwards compatibility */
 #define generalTimeEventTpName generalTimeEventProviderName
 
 /**@brief Provide information about the installed providers and their current best times.
  *
- * @param interst Desired interest level to report
+ * @param interest Desired interest level to report
  **/
 epicsShareFunc long generalTimeReport(int interest);
 
