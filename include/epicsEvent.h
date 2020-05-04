@@ -6,6 +6,37 @@
 * EPICS BASE is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution. 
 \*************************************************************************/
+
+/**@file epicsEvent.h
+ *
+ * @brief Create an epicsEvent.
+ *
+ * Defines the C++ and C API's for a simple binary semaphore. If multiple threads are
+ * waiting on the same event, only one of them will be woken when the event is signalled.
+ *
+ * The primary use of an event semaphore is for thread synchronization. An example of using an
+ * event semaphore is a consumer thread that processes requests from one or more producer threads.
+ * For example:
+ *
+ * When creating the consumer thread also create an epicsEvent.
+ @code
+   epicsEvent *pevent = new epicsEvent;
+ @endcode
+ * The consumer thread has code containing:
+ @code
+       while(1) {
+           pevent->wait();
+           while( {more work} ) {
+               {process work}
+           }
+       }
+ @endcode
+ * Producers create requests and issue the statement:
+ @code
+       pevent->signal();
+ @endcode
+ **/
+
 #ifndef epicsEventh
 #define epicsEventh
 
@@ -33,13 +64,40 @@ typedef enum {
 
 class epicsShareClass epicsEvent {
 public:
+    /**@brief An epicsEvent can be created empty or full.
+     * @note If it is created empty then a wait is issued before a signal will block.
+     * @note If created full then the first wait will always succeed.
+     * @note Multiple signals may be issues between waits but have the same effect as a single signal.
+     **/
     epicsEvent ( epicsEventInitialState initial = epicsEventEmpty );
+    /**@brief Remove the event and any resources it uses. Any further use of the semaphore result
+     * in unknown (most certainly bad) behaviour. No outstanding take can be active when this call
+     * is made.
+     **/
     ~epicsEvent ();
     void trigger ();
+    /**@brief Signal the event i.e. ensures the next or current call to wait completes. This method
+     * may be called from a vxWorks or RTEMS interrupt handler.
+     **/
     void signal () { this->trigger(); }
-    void wait ();                   /* blocks until full */
-    bool wait ( double timeOut );   /* false if still empty at time out */
+    /**@breif Wait for the event.
+     * @note Blocks until full,
+     **/
+    void wait ();
+    /**@brief Wait for the event or until the specified timeout.
+     * @param timeOut A double to wait for timeout. 
+     * @return True if the event was signalled, False if timed out.
+     **/
+    bool wait ( double timeOut );
+    /**@brief Similar to wait except that if the event does not happen the call completes
+     * immediately.
+     * @return True if an unused event has already been signalled, False if not.
+     **/
     bool tryWait ();                /* false if empty */
+    /**@brief Display information about the semaphore.
+     * @note The information displayed is architecture dependant.
+     * @param level An unsigned int for the level of information to be displayed.
+     **/
     void show ( unsigned level ) const;
 
     class invalidSemaphore;         /* exception payload */
