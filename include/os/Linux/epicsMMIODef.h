@@ -4,7 +4,7 @@
 * EPICS BASE is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution.
 \*************************************************************************/
-/** 
+/**
  * @file epicsMMIODef.h
  * @brief Memory Mapped I/O
  *
@@ -276,5 +276,7 @@ bswap32(epicsUInt32 value)
  *
  *@note All read and write operations have an implicit read or write barrier.
  */
+
+ /** @} */
 
 #endif /* EPICSMMIODEF_H */
