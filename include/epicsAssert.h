@@ -6,12 +6,31 @@
 * EPICS BASE is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution. 
 \*************************************************************************/
-/*
- * EPICS assert
+
+/**@file epicsAssert.h
+ * @author Jeffery O. Hill
+ * @date 27 Feb 1995
  *
- *      Author:         Jeffrey O. Hill
- *      Date:           022795
- */
+ * @brief This is a replacement for ANSI C's assert.
+ *
+ * To use this version just include:
+ @code
+ 	#include "epicsAssert.h"
+ @endcode
+ * instead of
+ @code
+ 	#include <assert.h>
+ @endcode
+ *
+ * If an assert fails, it calls errlog indicating the program’s author, file name, and
+ * line number. Under each OS there are specialized instructions assisting the user to
+ * diagnose the problem and generate a good bug report. For instance, under vxWorks,
+ * there are instructions on how to generate a stack trace, and on posix there are
+ * instructions about saving the core file. After printing the message the calling thread
+ * is suspended. An author may, before the above include line, optionally define a
+ * preprocessor macro named epicsAssertAuthor as a string that provides their name and
+ * email address if they wish to be contacted when the assertion fires.
+ **/
 
 #ifndef INC_epicsAssert_H
 #define INC_epicsAssert_H
