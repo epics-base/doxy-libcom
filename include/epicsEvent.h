@@ -9,7 +9,7 @@
 
 /**@file epicsEvent.h
  *
- * @brief APIs for the epicsEvent.
+ * @brief APIs for the epicsEvent binary semaphore.
  *
  * Defines the C++ and C API's for a simple binary semaphore. If multiple threads are
  * waiting on the same event, only one of them will be woken when the event is signalled.
@@ -123,7 +123,7 @@ private:
 extern "C" {
 #endif /*__cplusplus */
 
-/**@brief Create an epicsEvent and return an identifier for it, or NULL.
+/**@brief Create an epicsEvent for use from C code, or return NULL.
  *
  * @param initialState Starting state, \c epicsEventEmpty or \c epicsEventFull.
  * @return An identifier for the new event, or NULL if one not be created.
@@ -131,7 +131,7 @@ extern "C" {
 epicsShareFunc epicsEventId epicsEventCreate(
     epicsEventInitialState initialState);
 
-/**@brief Create an epicsEvent and return an identifier for it.
+/**@brief Create an epicsEvent for use from C code.
  *
  * This routine does not return if the object could not be created.
  * @param initialState Starting state, \c epicsEventEmpty or \c epicsEventFull.
@@ -140,14 +140,14 @@ epicsShareFunc epicsEventId epicsEventCreate(
 epicsShareFunc epicsEventId epicsEventMustCreate (
     epicsEventInitialState initialState);
 
-/**@brief Destroy the epicsEvent and any resources it holds.
+/**@brief Destroy an epicsEvent and any resources it holds.
  *
  * No calls to any epicsEventWait routines can be active when this call is made.
  * @param id The event identifier.
  **/
 epicsShareFunc void epicsEventDestroy(epicsEventId id);
 
-/**@brief Trigger the event i.e. ensures the next or current call to wait
+/**@brief Trigger an event i.e. ensures the next or current call to wait
  * completes.
  *
  * @note This method may be called from a VxWorks or RTEMS interrupt
@@ -158,7 +158,7 @@ epicsShareFunc void epicsEventDestroy(epicsEventId id);
 epicsShareFunc epicsEventStatus epicsEventTrigger(
     epicsEventId id);
 
-/**@brief Trigger the event.
+/**@brief Trigger an event.
  *
  * This routine does not return if the identifier is invalid.
  * @param id The event identifier.
@@ -171,7 +171,7 @@ epicsShareFunc void epicsEventMustTrigger(epicsEventId id);
  **/
 #define epicsEventSignal(ID) epicsEventMustTrigger(ID)
 
-/**@brief Wait for the event.
+/**@brief Wait for an event.
  * @note Blocks until full.
  * @param id The event identifier.
  * @return Status indicator.
@@ -179,14 +179,14 @@ epicsShareFunc void epicsEventMustTrigger(epicsEventId id);
 epicsShareFunc epicsEventStatus epicsEventWait(
     epicsEventId id);
 
-/**@brief Wait for the event.
+/**@brief Wait for an event (see epicsEventWait()).
  *
  * This routine does not return if the identifier is invalid.
  * @param id The event identifier.
  */
 epicsShareFunc void epicsEventMustWait(epicsEventId id);
 
-/**@brief Wait for the event or until the specified timeout period is over.
+/**@brief Wait an the event or until the specified timeout period is over.
  * @note Blocks until full or timeout.
  * @param id The event identifier.
  * @param timeOut The timeout delay in seconds.
