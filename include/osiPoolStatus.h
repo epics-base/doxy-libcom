@@ -7,9 +7,9 @@
 * in file LICENSE that is included with this distribution.
 \*************************************************************************/
 
-/**@Author Jeff Hill
- * 
- * @brief Functions which interrogate the state of the system wide pool
+/**@file osiPoolStatus.h
+ * @author Jeff Hill
+ * @brief Functions to check the state of the system memory pool.
  *
  **/
 
@@ -23,16 +23,17 @@
 extern "C" {
 #endif
 
-/**@brief Tests to see if there is sufficent space for a block of the requested size
- * along with whatever additional free space is necessary to keep the system running 
- * reliably
- * 
- * @note this routine is called quite frequently so an efficent implementation is important
+/**@brief Checks if a memory block of a specific size can be safely allocated.
  *
- * @A vxWorks version returns (True, False) if memFindMax returns (>100000, <=10000) bytes.
+ * The meaning of "safely allocated" is target-specific, some additional free
+ * space is usually necessary to keep the system running reliably.
+ * On vxWorks this returns True if at least 100000 bytes is free.
+ *
+ * @note This routine is called quite frequently by the IOC so an efficent
+ * implementation is important.
  *
  * @param contiguousBlockSize Block size to check.
- * @return (True, False) if there is sufficient memory.
+ * @return True if the requested memory should be available.
  */
 epicsShareFunc int epicsShareAPI osiSufficentSpaceInPool ( size_t contiguousBlockSize );
 
