@@ -7,15 +7,14 @@
 * in file LICENSE that is included with this distribution.
 \*************************************************************************/
 
+/**@Author Jeff Hill
+ * 
+ * @brief Functions which interrogate the state of the system wide pool
+ *
+ **/
+
 #ifndef INC_osiPoolStatus_H
 #define INC_osiPoolStatus_H
-
-/*
- * Author: Jeff Hill
- *
- * Functions which interrogate the state of the system wide pool
- *
- */
 
 #include <stdlib.h>
 #include "shareLib.h"
@@ -24,12 +23,16 @@
 extern "C" {
 #endif
 
-/*
- * tests to see if there is sufficent space for a block of the requested size
+/**@brief Tests to see if there is sufficent space for a block of the requested size
  * along with whatever additional free space is necessary to keep the system running 
  * reliably
+ * 
+ * @note this routine is called quite frequently so an efficent implementation is important
  *
- * this routine is called quite frequently so an efficent implementation is important
+ * @A vxWorks version returns (True, False) if memFindMax returns (>100000, <=10000) bytes.
+ *
+ * @param contiguousBlockSize Block size to check.
+ * @return (True, False) if there is sufficient memory.
  */
 epicsShareFunc int epicsShareAPI osiSufficentSpaceInPool ( size_t contiguousBlockSize );
 
