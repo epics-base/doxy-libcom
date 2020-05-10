@@ -13,7 +13,7 @@
  *
  * @brief A doubly-linked list library
  *
- * It provides functionality similar to the vxWorks lstLib library.
+ * This provides similar functionality to the VxWorks lstLib library.
  *
  * Supports the creation and maintenance of a doubly-linked list. The user
  * supplies a list descriptor (type ELLLIST) that will contain pointers to
@@ -32,104 +32,80 @@
 extern "C" {
 #endif
 
-/** @struct ELLNODE
- *  @brief List node item
- *  @var ELLNODE::next
- *    Pointer to next ELLNODE in the list
- *  @var ELLNODE::previous
- *    Pointer to previous ELLNODE in the list
+/** @brief List node type.
+ *
+ * A list node (@c ELLNODE) must be embedded in the structure to be placed
+ * on the list, ideally as the first member of that structure.
+ *
+ * If the node is elsewhere in the structure, care must be taken to convert
+ * between the structure pointer and the node pointer and back every time when
+ * calling routines in the ellLib API. The ellFree() and ellFree2() routines
+ * cannot be used with such a list.
  */
 typedef struct ELLNODE {
-    struct ELLNODE *next;
-    struct ELLNODE *previous;
+    struct ELLNODE *next;       /**< @brief Pointer to next node in list */
+    struct ELLNODE *previous;   /**< @brief Pointer to previous node in list */
 } ELLNODE;
 
-/**
- * @defgroup ellMacroDefs ell Macros
- * @{
- */
-/**
- * @def ELLNODE_INIT
- * @brief Creates a "NULL" Node
+/** @brief Value of a terminal node
  */
 #define ELLNODE_INIT {NULL, NULL}
-/** @} */
 
-/** @struct ELLLIST
- *  @brief List descriptor
- *  @var ELLLIST::node
- *    pointer to ELLNODE which contains next and previous pointer
- *  @var ELLLIST::count
- *    The number of nodes in the list
+/** @brief List header type
  */
 typedef struct ELLLIST {
-    ELLNODE node;
-    int     count;
+    ELLNODE node;   /**< @brief Pointers to the first and last nodes on list */
+    int     count;  /**< @brief Number of nodes on the list */
 } ELLLIST;
 
-/**
- * @defgroup ellMacroDefs ell Macros
- * @{
- */
-/**
-  * @def ELLLIST_INIT
-  * @brief Creates an empty list
+/** @brief Value of an empty list
   */
 #define ELLLIST_INIT {ELLNODE_INIT, 0}
-/** @} */
 
+/** @brief Pointer to free() for use by ellFree() macro.
+ *
+ * This is required for use on Windows, where each DLL has its own free()
+ * function. The ellFree() macro passes the application's version of free()
+ * to the ellFree2() function.
+ */
 typedef void (*FREEFUNC)(void *);
 
-/**
- * @defgroup ellMacroDefs ell Macros
- * @{
- */
-/**
-  * @def ellInit
-  * @brief Initialize a list descriptor
-  * @param PLIST Pointer to list descriptor to be initialized
+/** @brief Initialize a list type
+  * @param PLIST Pointer to list header to be initialized
   */
 #define ellInit(PLIST) {\
     (PLIST)->node.next = (PLIST)->node.previous = NULL;\
     (PLIST)->count = 0;\
 }
-/**
-  * @def ellCount
-  * @brief Report the number of nodes in a list
+/** @brief Report the number of nodes in a list
   * @param PLIST Pointer to list descriptor
+  * @return Number of nodes in the list
   */
 #define ellCount(PLIST)    ((PLIST)->count)
-/**
-  * @def ellFirst
-  * @brief Find the first node in list
+/** @brief Find the first node in list
   * @param PLIST Pointer to list descriptor
+  * @return Pointer to first node in the list
   */
 #define ellFirst(PLIST)    ((PLIST)->node.next)
-/**
-  * @def ellLast
-  * @brief Find the last node in list
+/** @brief Find the last node in list
   * @param PLIST Pointer to list descriptor
+  * @return Pointer to last node in the list
   */
 #define ellLast(PLIST)     ((PLIST)->node.previous)
-/**
-  * @def ellNext
-  * @brief Find the next node in list
+/** @brief Find the next node in list
   * @param PNODE Pointer to node whose successor is to be found
+  * @return Pointer to the node following @c PNODE
   */
 #define ellNext(PNODE)     ((PNODE)->next)
-/**
-  * @def ellPrevious
-  * @brief Find the previous node in list
+/** @brief Find the previous node in list
   * @param PNODE Pointer to node whose predecessor is to be found
+  * @return Pointer to the node prior to @c PNODE
   */
 #define ellPrevious(PNODE) ((PNODE)->previous)
-/**
-  * @def ellFree
-  * @brief Free up the list
+/** @brief Free up the list
   * @param PLIST List for which to free all nodes
   */
 #define ellFree(PLIST)     ellFree2(PLIST, free)
-/** @} */
 
 /**
  * @brief Adds a node to the end of a list
@@ -142,7 +118,7 @@ epicsShareFunc void ellAdd (ELLLIST *pList, ELLNODE *pNode);
  * The list to be added is left empty. Either list (or both)
  * can be empty at the beginning of the operation.
  * @param pDstList Destination list
- * @param pAddList List to be added to dstList
+ * @param pAddList List to be added to @c pDstList
  */
 epicsShareFunc void ellConcat (ELLLIST *pDstList, ELLLIST *pAddList);
 /**
@@ -154,62 +130,63 @@ epicsShareFunc void ellDelete (ELLLIST *pList, ELLNODE *pNode);
 /**
  * @brief Extract a sublist from a list.
  * @param pSrcList Pointer to source list
- * @param pStartNode First node in sublist to be extracted
- * @param pEndNode Last node in sublist to be extracted
+ * @param pStartNode First node in @c pSrcList to be extracted
+ * @param pEndNode Last node in @c pSrcList to be extracted
  * @param pDstList Pointer to list where to put extracted list
  */
 epicsShareFunc void ellExtract (ELLLIST *pSrcList, ELLNODE *pStartNode, ELLNODE *pEndNode, ELLLIST *pDstList);
 /**
- * @brief Delete and returns the first node from a list
+ * @brief Deletes and returns the first node from a list
  * @param pList Pointer to list from which to get node
- * @return If the list is empty, NULL will be returned.
+ * @return Pointer to the first node from the list, or NULL if the list is empty
  */
 epicsShareFunc ELLNODE * ellGet (ELLLIST *pList);
 /**
- * @brief Delete and returns the last node from the list.
+ * @brief Deletes and returns the last node from a list.
  * @param pList Pointer to list from which to get node
- * @return Returns the last node in the specified list. If
- * the list is empty, NULL will be returned.
+ * @return Pointer to the last node from the list, or NULL if the list is empty
  */
 epicsShareFunc ELLNODE * ellPop (ELLLIST *pList);
 /**
- * @brief Insert a node in a list after a specified node
- * Delete and returns the last node from the list.
+ * @brief Inserts a node into a list immediately after a specific node
  * @param plist Pointer to list into which to insert node
- * @param pPrev Pointer to node after which to insert
- * @param pNode Pointer to node to be inserted
- * @note If pPrev is NULL, then pNode will be inserted at the head of the list
+ * @param pPrev Pointer to the node after which to insert
+ * @param pNode Pointer to the node to be inserted
+ * @note If @c pPrev is NULL @c pNode will be inserted at the head of the list
  */
 epicsShareFunc void ellInsert (ELLLIST *plist, ELLNODE *pPrev, ELLNODE *pNode);
 /**
  * @brief Find the Nth node in a list
- * @param pList Pointer to list from which to get node
- * @param nodeNum N'th node
- * @return Returns the nodeNum'th element in pList. If
- * there is no nodeNum'th node in the list, NULL will be returned.
+ * @param pList Pointer to list from which to find node
+ * @param nodeNum Index of the node to be found
+ * @return Pointer to the element at index @c nodeNum in pList, or NULL if
+ * there is no such node in the list.
+ * @note The first node has index 1.
  */
 epicsShareFunc ELLNODE * ellNth (ELLLIST *pList, int nodeNum);
 /**
- * @brief Find a list node nStep steps away from a specified node
+ * @brief Find the list node @c nStep steps away from a specified node
  * @param pNode The known node
- * @param nStep Number of steps away to find
- * @return Returns the node, nStep nodes forward from pNode. If
- * there is no node that many steps from pNode, NULL will be returned.
+ * @param nStep How many steps to take, may be negative to step backwards
+ * @return Pointer to the node @c nStep nodes from @c pNode, or NULL if there
+ * is no such node in the list.
  */
 epicsShareFunc ELLNODE * ellNStep (ELLNODE *pNode, int nStep);
 /**
- * @brief Find a node in a list
- * @param pList Pointer to list in which to search
+ * @brief Find the index of a specific node in a list
+ * @param pList Pointer to list to search
  * @param pNode Pointer to node to search for
- * @return The node number, or -1 if the node is not found.
- * @note The first node is 1.
+ * @return The node's index, or -1 if it cannot be found on the list.
+ * @note The first node has index 1.
  */
 epicsShareFunc int  ellFind (ELLLIST *pList, ELLNODE *pNode);
+
+typedef int (*pListCmp)(const ELLNODE* A, const ELLNODE* B);
 /**
  * @author Michael Davidsaver
  * @date 2016
  *
- * @brief Stable (MergeSort) to given list.
+ * @brief Stable (MergeSort) of a given list.
  * @param pList Pointer to list to be sorted
  * @param pListCmp Compare function to be used
  * @note The comparison function cmp(A,B) is expected
@@ -218,14 +195,13 @@ epicsShareFunc int  ellFind (ELLLIST *pList, ELLNODE *pNode);
  * @note Use of mergesort algorithm based on analysis by
  * http://www.chiark.greenend.org.uk/~sgtatham/algorithms/listsort.html
  */
-typedef int (*pListCmp)(const ELLNODE* A, const ELLNODE* B);
-epicsShareFunc void ellSortStable(ELLLIST *pList, pListCmp);
+epicsShareFunc void ellSortStable(ELLLIST *pList, pListCmp pListCmp);
 /**
- * @brief Frees the nodes in a list
- * It makes the list into an empty list, and calls
- * freeFunc() for all the nodes that are (were) in that list.
- * @param pList List for which to free all nodes
- * @param freeFunc Free function to be called
+ * @brief Free all the nodes in a list.
+ *
+ * This routine empties a list, calling freeFunc() for every node on it.
+ * @param pList List from which to free all nodes
+ * @param freeFunc The free() routine to be called
  * @note The nodes in the list are free()'d on the assumption that the node
  * structures were malloc()'d one-at-a-time and that the ELLNODE structure is
  * the first member of the parent structure.
