@@ -167,7 +167,8 @@ epicsShareFunc void testPlan(int tests);
 /** @{ */
 /** @brief Test result with printf-style description.
  * @param pass True/False value indicating result.
- * @param fmt printf-style format string describing the test.
+ * @param fmt A printf-style format string describing the test.
+ * @param ... Any parameters required for the format string.
  * @return The value of \p pass.
  */
 epicsShareFunc int  testOk(int pass, const char *fmt, ...)
@@ -179,19 +180,21 @@ epicsShareFunc int  testOk(int pass, const char *fmt, ...)
 #define testOk1(cond) testOk(cond, "%s", #cond)
 /** @brief Test result with var-args description.
  * @param pass True/False value indicating result.
- * @param fmt vprintf-style format string describing the test.
- * @param pvar var-args for the format string.
+ * @param fmt A printf-style format string describing the test.
+ * @param pvar A var-args pointer to any parameters for the format string.
  * @return The value of \p pass.
  */
 epicsShareFunc int  testOkV(int pass, const char *fmt, va_list pvar);
 /** @brief Passing test result with printf-style description.
- * @param fmt printf-style format string describing the test.
+ * @param fmt A printf-style format string describing the test.
+ * @param ... Any parameters required for the format string.
  * @return The value of \p pass.
  */
 epicsShareFunc void testPass(const char *fmt, ...)
     EPICS_PRINTF_STYLE(1, 2);
 /** @brief Failing test result with printf-style description.
- * @param fmt printf-style format string describing the test.
+ * @param fmt A printf-style format string describing the test.
+ * @param ... Any parameters required for the format string.
  */
 epicsShareFunc void testFail(const char *fmt, ...)
     EPICS_PRINTF_STYLE(1, 2);
@@ -215,14 +218,16 @@ epicsShareFunc void testTodoBegin(const char *why);
  */
 epicsShareFunc void testTodoEnd(void);
 /** @brief Stop testing, program cannot continue.
- * @param fmt Reason for stopping.
+ * @param fmt A printf-style format string giving the reason for stopping.
+ * @param ... Any parameters required for the format string.
  */
 epicsShareFunc void testAbort(const char *fmt, ...)
     EPICS_PRINTF_STYLE(1, 2);
 /** @} */
 
 /** @brief Output additional diagnostics
- * @param fmt printf-style format string containing diagnostic information.
+ * @param fmt A printf-style format string containing diagnostic information.
+ * @param ... Any parameters required for the format string.
  */
 epicsShareFunc int  testDiag(const char *fmt, ...)
     EPICS_PRINTF_STYLE(1, 2);
