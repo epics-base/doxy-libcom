@@ -9,27 +9,19 @@
 \*************************************************************************/
 /**
  * @file epicsRingPointer.h
+ * @brief A circular buffer to store pointers
  * @author Marty Kraimer, Ralph Lange
- * @date 15. Jul 1999
  *
- * EpicsRingPointer provides methods for creating and using ring buffers
- * (first in first out circular buffers) that store pointers. The unlocked
- * variant is designed so that one writer thread and one reader thread can
- * access the ring simultaneously without requiring mutual exclusion. The
+ * @details
+ * epicsRingPointer.h provides both C and C++ APIs for creating and using ring
+ * buffers (first in first out circular buffers) that store pointers. The
+ * unlocked kind is designed so that one writer thread and one reader thread
+ * can access the ring simultaneously without requiring mutual exclusion. The
  * locked variant uses an epicsSpinLock, and works with any numbers of writer
  * and reader threads.
- * @note Here the terms push and pop are used, which have become familiar
- * for stack operations (LIFO). It would be better to use the terms 
- * enqueue and dequeue for FIFO operations.
- * @note If there is only one writer it is not necessary to lock push. 
- * If there is a single reader it is not necessary to lock pop. 
+ * @note If there is only one writer it is not necessary to lock pushes.
+ * If there is a single reader it is not necessary to lock pops.
  * epicsRingPointerLocked uses a spinlock.
- *
- * @note Algorithm note:
- *  Space is allocated for one additional element.
- *  A put request is rejected if the the ring buffer is full.
- *  The algorithm does not require locking puts for a single writer
- *      or locking of gets for a single reader
  */
 
 #ifndef INCepicsRingPointerh
@@ -41,63 +33,64 @@
 
 #ifdef __cplusplus
 /**
- * @brief Provides methods for creating and using ring buffers 
- * (first in first out circular buffers) that store pointers.
+ * @brief A C++ template class providing methods for creating and using a ring
+ *  buffer (a first in, first out circular buffer) that stores pointers to
+ *  objects of the template type.
  */
 template <class T>
 class epicsRingPointer {
 public: /* Functions */
     /**@brief Constructor
-     * @param size Maximum number of elements (pointers) that can be stored in the ring
-     * @param locked If locked is true, the spin lock secured variant is created
+     * @param size Maximum number of elements (pointers) that can be stored
+     * @param locked If true, the spin lock secured variant is created
      */
-    epicsRingPointer(int size, bool locked); 
+    epicsRingPointer(int size, bool locked);
     /**@brief Destructor
      */
     ~epicsRingPointer();
     /**@brief Push a new entry on the ring
-     * @return It returns (false,true) is (failure, success).
-     * Failure means the ring was full
+     * @return True on success, False if the buffer was full
      */
     bool push(T *p);
     /**@brief Take an element off the ring
-     * @return It returns 0 (null) if the ring was empty
+     * @return The element, or NULL if the ring was empty
      */
     T* pop();
     /**@brief Remove all elements from the ring.
-     * If this operation is performed on a ring buffer of the 
-     * unsecured variant, all access to the ring should be locked.
+     * @note If this operation is performed on a ring buffer of the
+     * unsecured kind, all access to the ring should be locked.
      */
     void flush();
-    /**@brief Get amount of empty space in the ring
-     * @return Return the amount of empty space in the ring,
-     * i.e. how many additional elements it can hold.
+    /**@brief Get how much free space remains in the ring
+     * @return The number of additional elements the ring could hold.
      */
     int getFree() const;
-    /**@brief Get the number of elements stored on the ring
-     * @return Return the number of elements stored on the ring
+    /**@brief Get how many elements are stored on the ring
+     * @return The number of elements currently stored.
      */
     int getUsed() const;
     /**@brief Get the size of the ring
-     * @return Return the size of the ring, 
-     * i.e. the value of size specified when the ring was created.
+     * @return The @c size specified when the ring was created.
      */
     int getSize() const;
-    /**@brief Test on empty
-     * @return Returns true if the ring is empty, else false.
+    /**@brief Test if the ring is currently empty
+     * @return True if the ring is empty, otherwise false.
      */
     bool isEmpty() const;
-    /**@brief Test on full 
-     * @return Returns true if the ring is full, else false.
+    /**@brief Test if the ring is currently full
+     * @return True if the ring is full, otherwise false.
      */
     bool isFull() const;
-    /**@brief Read high water mark 
-     * @return Returns the highest number of elements the ring
-     * buffer contained since the water mark has been reset. A new
-     * ring buffer starts with a water mark of 0.
+    /**@brief See how full the ring has got since it was last checked.
+     *
+     * Returns the maximum number of elements the ring
+     * buffer has held since the water mark was last reset.
+     * A new ring buffer starts with a water mark of 0.
+     * @return Actual highwater mark
      */
     int getHighWaterMark() const;
-    /**@brief Reset high water mark 
+    /**@brief Reset high water mark
+     *
      * High water mark will be set to the current usage
      */
     void resetHighWaterMark();
@@ -121,89 +114,92 @@ private: /* Data */
 extern "C" {
 #endif /*__cplusplus */
 
+/** @brief An identifier for the C API to a ring buffer storing pointers */
 typedef void *epicsRingPointerId;
 typedef void const *epicsRingPointerIdConst;
 /**
  * @brief Create a new ring buffer
  * @param size Size of ring buffer to create
- * @return epicsRingPointerId or NULL on failure
+ * @return Ring buffer identifier or NULL on failure
  */
 epicsShareFunc epicsRingPointerId  epicsShareAPI epicsRingPointerCreate(int size);
 /**
  * @brief Create a new ring buffer, secured by a spinlock
  * @param size Size of ring buffer to create
- * @return epicsRingPointerId or NULL on non success
+ * @return Ring buffer identifier or NULL on failure
  */
 epicsShareFunc epicsRingPointerId  epicsShareAPI epicsRingPointerLockedCreate(int size);
 /**
  * @brief Delete the ring buffer and free any associated memory
- * @param id epicsRingPointerId returned by a former epicsRingPointerCreate 
+ * @param id Ring buffer identifier
  */
 epicsShareFunc void epicsShareAPI epicsRingPointerDelete(epicsRingPointerId id);
 /**
- * @brief Push pointer to the ring
- * @param id epicsRingPointerId returned by a former epicsRingPointerCreate
+ * @brief Push pointer into the ring buffer
+ * @param id Ring buffer identifier
  * @param p Pointer to be pushed to the ring
- * @return Returns (0,1) if p (was not, was) put on ring
+ * @return 1 if the pointer was successfully pushed, 0 if the buffer was full
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerPush(epicsRingPointerId id,void *p);
 /**
- * @brief Take a element off the ring
- * @param id epicsRingPointerId returned by a former epicsRingPointerCreate
- * @return Returns 0 (null) if the ring was empty
+ * @brief Take an element off the ring
+ * @param id Ring buffer identifier
+ * @return The pointer from the buffer, or NULL if the ring was empty
  */
 epicsShareFunc void* epicsShareAPI epicsRingPointerPop(epicsRingPointerId id) ;
 /**
  * @brief Remove all elements from the ring
- * @param id epicsRingPointerID returned by a former epicsRingPointerCreate 
+ * @param id Ring buffer identifier
  * @note If this operation is performed on a ring buffer of the unsecured
- * variant, all access to the ring should be locked.
+ * kind, all access to the ring should be locked.
  */
 epicsShareFunc void epicsShareAPI epicsRingPointerFlush(epicsRingPointerId id);
 /**
- * @brief Return the amount of empty space in the ring
- * @param id epicsRingPointerID returned by a former epicsRingPointerCreate
- * @return Return the amount of empty space in the ring, 
- * i.e. how many additional elements it can hold.
+ * @brief Return the amount of empty space in the ring buffer
+ * @param id Ring buffer identifier
+ * @return The number of additional elements it could hold.
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerGetFree(epicsRingPointerId id);
 /**
- * @brief Return the number of elements stored on the ring
- * @param id epicsRingPointerID returned by a former epicsRingPointerCreate
- * @return Return the amount of elements stored on the ring 
+ * @brief Return the number of elements stored in the ring buffer
+ * @param id Ring buffer identifier
+ * @return The number of elements stored in the ring buffer
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerGetUsed(epicsRingPointerId id);
 /**
  * @brief Return the size of the ring
- * @param id epicsRingPointerID returned by a former epicsRingPointerCreate
- * @return Return the size of the ring, 
- * i.e. the value of size specified when the ring was created.
+ * @param id Ring buffer identifier
+ * @return The size of the ring buffer, i.e. the value of @c size
+ * given when the ring was created.
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerGetSize(epicsRingPointerId id);
 /**
- * @brief Returns 1 if the ring is empty, else 0
- * @param id epicsRingPointerID returned by a former epicsRingPointerCreate
- * @return Returns 1 if the ring is empty, else 0
+ * @brief Check if the ring buffer is currently empty
+ * @param id Ring buffer identifier
+ * @return 1 if the ring is empty, otherwise 0
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerIsEmpty(epicsRingPointerId id);
 /**
- * @brief Returns 1 if the ring is full, else 0
- * @param id epicsRingPointerID returned by a former epicsRingPointerCreate
- * @return Returns 1 if the ring is full, else 0
+ * @brief Check if the ring buffer is currently full
+ * @param id Ring buffer identifier
+ * @return 1 if the ring buffer is full, otherwise 0
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerIsFull(epicsRingPointerId id);
 /**
  * @brief Get the Highwater mark of the ring buffer
- * @param id epicsRingPointerID returned by a former epicsRingPointerCreate
- * @return Returns the highest number of elements the ring buffer contained
- * since the water mark has been reset. A new ring buffer starts with the
+ *
+ * Returns the largest number of elements the ring buffer has held since
+ * the water mark was last reset. A new ring buffer starts with a
  * water mark of 0.
+ * @param id Ring buffer identifier
+ * @return Actual Highwater mark
  */
 epicsShareFunc int  epicsShareAPI epicsRingPointerGetHighWaterMark(epicsRingPointerIdConst id);
 /**
  * @brief Reset the Highwater mark of the ring buffer
+ *
  * The Highwater mark will be set to the current usage
- * @param id epicsRingPointerID returned by a former epicsRingPointerCreate
+ * @param id Ring buffer identifier
  */
 epicsShareFunc void epicsShareAPI epicsRingPointerResetHighWaterMark(epicsRingPointerId id);
 
