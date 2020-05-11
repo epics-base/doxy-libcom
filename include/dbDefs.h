@@ -6,9 +6,15 @@
 * EPICS BASE is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution. 
 \*************************************************************************/
-/*
- *      Author:          Marty Kraimer
- *      Date:            6-1-90
+
+/**
+ * @file dbDefs.h
+ * @author Marty Kraimer
+ * @date  6-1-90
+ *
+ * @brief Miscellaneous database related functions
+ *
+ * This file containes a number of database related definitions.
  */
 
 #ifndef INC_dbDefs_H
@@ -26,22 +32,35 @@
 #endif
 #define FALSE 0
 
-/* deprecated, use static */
 #ifndef LOCAL
+/**
+ * @def LOCAL
+ * @brief Deprecated, use static
+ */
 #   define LOCAL static
 #endif
 
-/* number of elements in an array */
+/**
+ * @def NELEMENTS(array)
+ * @brief Number of elements in an array
+ */
 #ifndef NELEMENTS
 #   define NELEMENTS(array) (sizeof (array) / sizeof ((array) [0]))
 #endif
 
-/* byte offset of member in structure - deprecated, use offsetof */
+/**
+ * @def OFFSET(structure, member)
+ * @brief Byte offset of member in structure
+ * @note Deprecated, use offsetof
+ */
 #ifndef OFFSET
 #   define OFFSET(structure, member) offsetof(structure, member)
 #endif
 
-/* Subtract member byte offset, returning pointer to parent object */
+/**
+ * @def CONTAINER(ptr, structure, member)
+ * @brief Subtract member byte offset, returning pointer to parent object
+ */
 #ifndef CONTAINER
 # ifdef __GNUC__
 #   define CONTAINER(ptr, structure, member) ({                     \
@@ -54,15 +73,24 @@
 # endif
 #endif
 
-/*Process Variable Name Size */
-/* PVNAME_STRINGSZ includes the nil terminator */
+/**
+ * @def PVNAME_SZ (PVNAME_STRINGSZ - 1)
+ * @brief Process Variable Name Size
+ * @note PVNAME_STRINGSZ includes the nil terminator
+ */
 #define PVNAME_STRINGSZ 61
 #define PVNAME_SZ (PVNAME_STRINGSZ - 1)
 
-/* Buffer size for the string representation of a DBF_*LINK field */
+/**
+ * @def PVLINK_STRINGSZ
+ * @brief Buffer size for the string representation of a DBF_*LINK field
+ */
 #define PVLINK_STRINGSZ 1024
 
-/* dbAccess enums/menus can have up to this many choices */
+/**
+ * @def DB_MAX_CHOICES
+ * @brief dbAccess enums/menus can have up to this many choices
+ */
 #define DB_MAX_CHOICES 30
 
 #endif /* INC_dbDefs_H */
