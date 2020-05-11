@@ -6,6 +6,15 @@
 * EPICS BASE is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution.
 \*************************************************************************/
+
+/**
+ * @file epicsReadline.h
+ * @brief Commandline editing functions
+ * @author Eric Norum
+ * @date 12-12-2001
+ *
+ * Provides a set of functions for command line editing
+ */
 #ifndef INC_epicsReadline_H
 #define INC_epicsReadline_H
 
@@ -15,9 +24,23 @@ extern "C" {
 
 #include <shareLib.h>
 #include <stdio.h>
-
+/**
+ * Create a command-line context
+ * @param in Filehandle to read from
+ * @returns Command-line context
+ */
 epicsShareFunc void * epicsShareAPI epicsReadlineBegin (FILE *in);
+/**
+ * Read a line of input
+ * @param prompt Prompt string
+ * @param context To read from
+ * @returns Line read
+ */
 epicsShareFunc char * epicsShareAPI epicsReadline (const char *prompt, void *context);
+/**
+ * Destroy a command-line context
+ * @param context Command-line context to destroy
+ */
 epicsShareFunc void   epicsShareAPI epicsReadlineEnd (void *context);
 
 #ifdef __cplusplus
