@@ -27,50 +27,62 @@
 extern "C" {
 #endif
 
+/**
+ * @brief Pointer to a callback function that is to be called
+ * by the epicsExit subsystem.
+ */
 typedef void (*epicsExitFunc)(void *arg);
 
 /**
- * Calls epicsExitCallAtExits
- * @param status  Passed to exit
+ * @brief Calls epicsExitCallAtExits(), then the OS exit() routine.
+ * @param status Passed to exit()
  */
 epicsShareFunc void epicsExit(int status);
 /**
- * Calls epicsExit in a created low priority thread to delay
- * the exit and run it not in the actual process.
- * @param status  Passed to exit
+ * @brief Arrange to call epicsExit() later from a low priority thread.
+ *
+ * This delays the actual call to exit() so it doesn't run in this thread.
+ * @param status Passed to exit()
  */
 epicsShareFunc void epicsExitLater(int status);
 /**
+ * @brief Internal routine that runs the registered exit routines.
+ *
  * Calls each of the functions registered by prior calls to epicsAtExit
  * in reverse order of their registration.
  * @note Most applications will not call this routine directly.
  */
 epicsShareFunc void epicsExitCallAtExits(void);
 /**
- * Register a function and an associated context parameter
- * @param func To be called when epicsExitCallAtExits is invoked.
- * @param arg Given paramter to the function.
+ * @brief Register a function and an associated context parameter
+ * @param func Function to be called when epicsExitCallAtExits is invoked.
+ * @param arg Context parameter for the function.
  * @param name Function name
  */
 epicsShareFunc int epicsAtExit3(epicsExitFunc func, void *arg, const char* name);
 
 /**
- * @def epicsAtExit
- * Provides name of the function to be called
+ * @brief Convenience macro to register a function and context value to be
+ * run when the process exits.
+ * @param F Function to be called at process shutdown.
+ * @param A Context parameter for the function.
  */
 #define epicsAtExit(F,A) epicsAtExit3(F,A,#F)
 /**
- * Calls each of the functions that were registered by the current
- * thread calling epicsAtThreadExit in reverse order of the function registration.
+ * @brief Internal routine that runs the registered thread exit routines.
+ *
+ * Calls each of the functions that were registered in the current thread by
+ * calling epicsAtThreadExit(), in reverse order of their registration.
  * @note  This routine is called automatically when an epicsThread’s main
- * entry method returns, but will not be run if the thread is stopped by other means.
+ * entry routine returns. It will not be run if the thread gets stopped by
+ * some other method.
  */
 epicsShareFunc void epicsExitCallAtThreadExits(void);
 /**
- * Register a function and an associated context parameter.
- * @param func To be called when epicsExitCallAtThreadExits is invoked by the 
- * current thread ending normally, i.e. when the thread function returns.
- * @param arg Given paramter to the function.
+ * @brief Register a function and an context value to be run by this thread
+ * when it returns from its entry routine.
+ * @param func Function be called at thread completion.
+ * @param arg Context parameter for the function.
  */
 epicsShareFunc int epicsAtThreadExit(epicsExitFunc func, void *arg);
 
