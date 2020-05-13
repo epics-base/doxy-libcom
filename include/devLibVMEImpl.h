@@ -6,17 +6,13 @@
 * Copyright (c) 2002 The Regents of the University of California, as
 *     Operator of Los Alamos National Laboratory.
 * EPICS BASE is distributed subject to a Software License Agreement found
-* in file LICENSE that is included with this distribution. 
+* in file LICENSE that is included with this distribution.
 \*************************************************************************/
 
 /**
  * @file devLibVMEImpl.h
- * @note Should it not be devLibImpl.h ?
  * @author Marty Kraimer, Jeff Hill
- * @date   03-10-93
- *
- * Virtual OS layer for devLib.c
- *
+ * @brief An interface from devLibVME.c to its OS-specific implementations.
  */
 
 #ifndef INCdevLibImplh
@@ -31,47 +27,56 @@ extern "C" {
 #endif
 
 /**
- * @struct devLibVME
+ * @brief A table of function pointers for devLibVME implementations
  *
- * The global virtual OS table pdevLibVME controls
+ * The global virtual OS table \ref pdevLibVME controls
  * the behaviour of the functions defined in devLib.h.
  * All of which call into the functions found in this table
  * to perform system specific tasks.
  */
 typedef struct devLibVME {
-	long (*pDevMapAddr) (epicsAddressType addrType, unsigned options,
-			size_t logicalAddress, size_t size, volatile void **ppPhysicalAddress); //!< Maps logical address to physical address, but does not detect two device drivers that are using the same address range.
+    /** @brief Map a bus address to the CPU's address space. */
+    long (*pDevMapAddr) (epicsAddressType addrType, unsigned options,
+        size_t logicalAddress, size_t size, volatile void **ppPhysicalAddress);
 
-	long (*pDevReadProbe) (unsigned wordSize, volatile const void *ptr, void *pValueRead); //!< A bus error safe "wordSize" read at the specified address which returns unsuccessful status if the device isnt present.
+    /** @brief Read a word, detect and protect against bus errors. */
+    long (*pDevReadProbe) (unsigned wordSize, volatile const void *ptr,
+        void *pValueRead);
+    /** @brief Write a word, detect and protect against bus errors. */
+    long (*pDevWriteProbe) (unsigned wordSize, volatile void *ptr,
+        const void *pValueWritten);
 
-	long (*pDevWriteProbe) (unsigned wordSize, volatile void *ptr, const void *pValueWritten); //!< A bus error safe "wordSize" write at the specified address which returns unsuccessful status if the device isnt present.
+    /** @brief Connect ISR to a VME interrupt vector. */
+    long (*pDevConnectInterruptVME) (unsigned vectorNumber,
+        void (*pFunction)(void *), void  *parameter);
+    /** @brief Disconnect ISR from a VME interrupt vector. */
+    long (*pDevDisconnectInterruptVME) (unsigned vectorNumber,
+        void (*pFunction)(void *));
 
-	long (*pDevConnectInterruptVME) (unsigned vectorNumber, 
-						void (*pFunction)(void *), void  *parameter); //!< Connect ISR to a VME interrupt vector. (required for backwards compatibility)
+    /** @brief Enable VME interrupt level to CPU. */
+    long (*pDevEnableInterruptLevelVME) (unsigned level);
+    /** @brief Disable VME interrupt level to CPU. */
+    long (*pDevDisableInterruptLevelVME) (unsigned level);
 
-	long (*pDevDisconnectInterruptVME) (unsigned vectorNumber,
-						void (*pFunction)(void *)); //!< Disconnect ISR from a VME interrupt vector. (required for backwards compatibility)
-	long (*pDevEnableInterruptLevelVME) (unsigned level); //!< Enable VME interrupt level.
+    /** @brief Malloc a block accessible from the VME A24 address space. */
+    void *(*pDevA24Malloc)(size_t nbytes);
+    /** @brief Free a block allocated for the VME A24 address space. */
+    void (*pDevA24Free)(void *pBlock);
 
-	long (*pDevDisableInterruptLevelVME) (unsigned level); //!< Disable VME interrupt level.
-        void *(*pDevA24Malloc)(size_t nbytes); //!< Malloc/free A24 address space.
-        void (*pDevA24Free)(void *pBlock); //!< Release (free) block in A24 adress space.
-        long (*pDevInit)(void); //!< Init devLib
-	int (*pDevInterruptInUseVME) (unsigned vectorNumber); //!< Test if VME interrupt has an ISR connectd.
+    /** @brief Init devLib */
+    long (*pDevInit)(void);
+
+    /** @brief Check if interrupt vector has an ISR connected. */
+    int (*pDevInterruptInUseVME)(unsigned vectorNumber);
 }devLibVME;
 
+/** @brief Pointer to the entry table used by devLibVME routines. */
 epicsShareExtern devLibVME *pdevLibVME;
 
 #ifndef NO_DEVLIB_COMPAT
-/**
- * @def pdevLibVirtualOS
- * @brief Alias to pdevLibVME
- */
+/** @brief An alias for pdevLibVME */
 #  define pdevLibVirtualOS pdevLibVME
-/**
- * @var typedef devLibVME
- * @brief A type definition for devLibVME
- */
+/** @brief A type definition for devLibVME */
 typedef devLibVME devLibVirtualOS;
 #endif
 

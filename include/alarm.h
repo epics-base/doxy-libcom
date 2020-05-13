@@ -4,16 +4,17 @@
 * Copyright (c) 2002 The Regents of the University of California, as
 *     Operator of Los Alamos National Laboratory.
 * EPICS BASE is distributed subject to a Software License Agreement found
-* in file LICENSE that is included with this distribution. 
+* in file LICENSE that is included with this distribution.
 \*************************************************************************/
 
 /**
  * @file alarm.h
- * @brief Setup alarm definitions
+ * @brief Alarm severity and status/condition values
  * @author Bob Dalesio and Marty Kraimer
  *
- * Alarm definitions 
- * @note Must match menuAlarmSevr.dbd and menuAlarmStat.dbd
+ * These alarm definitions must match the related
+ * menuAlarmSevr.dbd and menuAlarmStat.dbd files
+ * found in the IOC database module.
  */
 
 #ifndef INC_alarm_H
@@ -25,61 +26,68 @@
 extern "C" {
 #endif
 
-/** 
- * @def NO_ALARM
- * @brief defines NO_ALARM as 0
+/**
+ * @brief The NO_ALARM value can be used as both a severity and a status.
  */
 #define NO_ALARM            0
 
-//! @enum epicsAlarmSeverity assigns alarm severities
-//!  @note must match menuAlarmSevr.dbd
+/**
+ * @brief Alarm severity values
+ * @note These must match the choices in menuAlarmSevr.dbd
+ */
 typedef enum {
-    epicsSevNone = NO_ALARM, //!< no alarm
-    epicsSevMinor,           //!< minor severity
-    epicsSevMajor,           //!< major severity
-    epicsSevInvalid,         //!< invalid severity
-    ALARM_NSEV               //!< Nr. of alarm severities
+    epicsSevNone = NO_ALARM, /**< No alarm */
+    epicsSevMinor,           /**< Minor alarm severity */
+    epicsSevMajor,           /**< Major alarm severity */
+    epicsSevInvalid,         /**< Invalid alarm severity */
+    ALARM_NSEV               /**< Number of alarm severities */
 } epicsAlarmSeverity;
 
 /**
- * @defgroup alarmDefs alarm 
+ * @name Original macros for alarm severity values
  * @{
  */
-//! @def alarm definitions
 #define firstEpicsAlarmSev  epicsSevNone
 #define MINOR_ALARM         epicsSevMinor
 #define MAJOR_ALARM         epicsSevMajor
 #define INVALID_ALARM       epicsSevInvalid
 #define lastEpicsAlarmSev   epicsSevInvalid
+/** @} */
 
-//! @enum epicsAlarmCondition assigns alarm conditions
-//!  @note must match menuAlarmStat.dbd
+/**
+ * @brief Alarm status/condition values
+ * @note These must match the choices in menuAlarmStat.dbd
+ */
 typedef enum {
-    epicsAlarmNone = NO_ALARM, //!< no alarm
-    epicsAlarmRead,            //!< read alarm (hw read?)
-    epicsAlarmWrite,           //!< write alarm (hw write?)
-    epicsAlarmHiHi,            //!< High high limit alarm
-    epicsAlarmHigh,            //!< High limit alarm
-    epicsAlarmLoLo,            //!< Low low limit alarm
-    epicsAlarmLow,             //!< Low limit alarm
-    epicsAlarmState,           //!< State alarm (e.g. off/on)
-    epicsAlarmCos,             //!< Change of state alarm
-    epicsAlarmComm,            //!< Communication alarm
-    epicsAlarmTimeout,         //!< Timeout alarm
-    epicsAlarmHwLimit,         //!< Hardware limit alarm
-    epicsAlarmCalc,            //!< Alarms from calc/calcout record
-    epicsAlarmScan,            //!< Scan alarm, e.g. record not processed (10 times) or not in desired scan list
-    epicsAlarmLink,            //!< Link alarm
-    epicsAlarmSoft,            //!< Soft alarm, e.g. in sub record if subroutine gives error
-    epicsAlarmBadSub,          //!< Bad subroutine alarm, e.g. in sub record subroutine not defined
-    epicsAlarmUDF,             //!< Undefined alarm state, e.g. record never processed
-    epicsAlarmDisable,         //!< Alarm disabled
-    epicsAlarmSimm,            //!< Alarm simulation
-    epicsAlarmReadAccess,      //!< Alarm on read access (?AlarmRead)
-    epicsAlarmWriteAccess,     //!< Alarm on write access (?AlarmWrite)
-    ALARM_NSTATUS              //!< Nr. of alarm conditions
+    epicsAlarmNone = NO_ALARM, /**< No alarm */
+    epicsAlarmRead,            /**< Read alarm (read error) */
+    epicsAlarmWrite,           /**< Write alarm (write error) */
+    epicsAlarmHiHi,            /**< High high limit alarm */
+    epicsAlarmHigh,            /**< High limit alarm */
+    epicsAlarmLoLo,            /**< Low low limit alarm */
+    epicsAlarmLow,             /**< Low limit alarm */
+    epicsAlarmState,           /**< State alarm (e.g. off/on) */
+    epicsAlarmCos,             /**< Change of state alarm */
+    epicsAlarmComm,            /**< Communication alarm */
+    epicsAlarmTimeout,         /**< Timeout alarm */
+    epicsAlarmHwLimit,         /**< Hardware limit alarm */
+    epicsAlarmCalc,            /**< Calculation expression error */
+    epicsAlarmScan,            /**< Scan alarm, e.g. record not processed (10 times) or not in desired scan list */
+    epicsAlarmLink,            /**< Link alarm */
+    epicsAlarmSoft,            /**< Soft alarm, e.g. in sub record if subroutine gives error */
+    epicsAlarmBadSub,          /**< Bad subroutine alarm, e.g. in sub record subroutine not defined */
+    epicsAlarmUDF,             /**< Undefined value alarm, e.g. record never processed */
+    epicsAlarmDisable,         /**< Record disabled using DISV/DISA fields */
+    epicsAlarmSimm,            /**< Record is in simulation mode */
+    epicsAlarmReadAccess,      /**< Read access permission problem */
+    epicsAlarmWriteAccess,     /**< Write access permission problem */
+    ALARM_NSTATUS              /**< Number of alarm conditions */
 } epicsAlarmCondition;
 
+/**
+ * @name Original macros for alarm status/condition values
+ * @{
+ */
 #define firstEpicsAlarmCond epicsAlarmNone
 #define READ_ALARM          epicsAlarmRead
 #define WRITE_ALARM         epicsAlarmWrite
@@ -106,9 +114,12 @@ typedef enum {
 /** @} */
 
 /**
- * @var Name string arrays
+ * @brief How to convert an alarm severity into a string
  */
 epicsShareExtern const char *epicsAlarmSeverityStrings [ALARM_NSEV];
+/**
+ * @brief How to convert an alarm condition/status into a string
+ */
 epicsShareExtern const char *epicsAlarmConditionStrings [ALARM_NSTATUS];
 
 

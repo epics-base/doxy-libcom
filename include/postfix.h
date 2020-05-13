@@ -4,18 +4,16 @@
 * Copyright (c) 2002 The Regents of the University of California, as
 *     Operator of Los Alamos National Laboratory.
 * EPICS BASE is distributed subject to a Software License Agreement found
-* in file LICENSE that is included with this distribution. 
+* in file LICENSE that is included with this distribution.
 \*************************************************************************/
 /**
  * @file postfix.h
- * @author Bob Dalesio
- * @date  21 Sep 1988
+ * @author Bob Dalesio, Andrew Johnson
  *
- * @brief Defines macros and routines used by the calculation record.
+ * @brief The API for the EPICS Calculation Engine
  *
- * Defines several macros and the routines used by the calculation record
- * type calcRecord, access security, and other code, to compile and evaluate
- * mathematical expressions.
+ * Defines macros and the routines provided by the calculation engine for
+ * subsystems that need to evaluate mathematical expressions.
  */
 
 #ifndef INCpostfixh
@@ -23,106 +21,89 @@
 
 #include "shareLib.h"
 
+/** @brief Number of input arguments to a calc expression (A-L) */
 #define CALCPERFORM_NARGS 12
+/** @brief Size of the internal partial result stack */
 #define CALCPERFORM_STACK 80
 
 /**
- * @defgroup macroDefs Definitions/Macros
+ * @name Postfix and Infix Buffer Sizes
  * @{
  */
 /**
- * @def INFIX_TO_POSTFIX_SIZE
+ * @brief Calculate required size of postfix buffer from infix
  *
- * The above expression is an estimate of the maximum postfix buffer
- * size needed for a given infix expression buffer (the argument must count
- * the trailing nil byte in the input expression string). The actual size
+ * This macro calculates the maximum size of postfix buffer needed for an
+ * infix expression buffer of a given size. The argument @c n must count
+ * the trailing nil byte in the input expression string. The actual size
  * needed is never larger than this value, although it is actually a
  * few bytes smaller for some sizes.
  *
  * The maximum expansion from infix to postfix is for the sub-expression
- *   - .1?.1:
+ @code
+        .1?.1:
+@endcode
  * which is 6 characters long and results in 21 bytes of postfix:
- *     - .1 => LITERAL_DOUBLE + 8 byte value
- *     - ?  => COND_IF
- *     - .1 => LITERAL_DOUBLE + 8 byte value
- *     - :  => COND_ELSE
- *     - ...
- *     -    => COND_END
- *     .
+@code
+        .1 => LITERAL_DOUBLE + 8 byte value
+        ?  => COND_IF
+        .1 => LITERAL_DOUBLE + 8 byte value
+        :  => COND_ELSE
+        ...
+           => COND_END
+@endcode
  * For other short expressions the factor 21/6 always gives a big enough
  * postfix buffer (proven by hand, look at '1+' and '.1+' as well).
  */
 #define INFIX_TO_POSTFIX_SIZE(n) ((n)*21/6)
 
 /**
- * @def MAX_INFIX_SIZE
+ * @brief Size of a "standard" infix string.
  *
- * These are not hard limits, just default sizes for the database
+ * This is not a hard limit, just the default size for the database
  */
 #define MAX_INFIX_SIZE 100
 /**
- * @def MAX_POSTFIX_SIZE
+ * @brief Size of a "standard" postfix buffer.
  *
- * These are not hard limits, just default sizes for the database
+ * This is not a hard limit, just the default size for the database
  */
 #define MAX_POSTFIX_SIZE INFIX_TO_POSTFIX_SIZE(MAX_INFIX_SIZE)
 
+/** @} */
 
-/** @def CALC_ERR_NONE 
- * No error
+/** @name Calc Engine Error Codes
+* @note Changes in these errors must also be made in calcErrorStr().
+ * @{
  */
-#define CALC_ERR_NONE            0 
-/** @def CALC_ERR_TOOMANY
- * Too many results returned 
- */
+
+/** @brief No error */
+#define CALC_ERR_NONE            0
+/** @brief Too many results returned */
 #define CALC_ERR_TOOMANY         1
-/** @def CALC_ERR_BAD_LITERAL
- *  Bad numeric literal
- */
+/** @brief  Bad numeric literal */
 #define CALC_ERR_BAD_LITERAL     2
-/** @def CALC_ERR_BAD_ASSIGNMENT
- * Bad assignment target
- */
+/** @brief Bad assignment target */
 #define CALC_ERR_BAD_ASSIGNMENT  3
-/** @def CALC_ERR_BAD_SEPERATOR
- * Comma without parentheses
- */
+/** @brief Comma without parentheses */
 #define CALC_ERR_BAD_SEPERATOR   4
-/** @def CALC_ERR_PAREN_NOT_OPEN
- * Close parenthesis without open
- */
+/** @brief Close parenthesis without open */
 #define CALC_ERR_PAREN_NOT_OPEN  5
-/** @def CALC_ERR_PAREN_OPEN
- * Open parenthesis at end of expression 
- */
+/** @brief Open parenthesis at end of expression */
 #define CALC_ERR_PAREN_OPEN      6
-/** @def CALC_ERR_CONDITIONAL
- * Unbalanced conditional ?: operators
- */
+/** @brief Unbalanced conditional ?: operators */
 #define CALC_ERR_CONDITIONAL     7
-/** @def CALC_ERR_INCOMPLETE
- * Incomplete expression, operand missing
- */
+/** @brief Incomplete expression, operand missing */
 #define CALC_ERR_INCOMPLETE      8
-/** @def CALC_ERR_UNDERFLOW
- * Runtime stack would underflow
- */
+/** @brief Runtime stack would underflow */
 #define CALC_ERR_UNDERFLOW       9
-/** @def CALC_ERR_OVERFLOW
- * Runtime stack would overflow
- */
+/** @brief Runtime stack would overflow */
 #define CALC_ERR_OVERFLOW       10
-/** @def CALC_ERR_SYNTAX
- * Syntax error
- */
+/** @brief Syntax error */
 #define CALC_ERR_SYNTAX         11
-/** @def CALC_ERR_NULL_ARG
- * NULL or empty input argument
- */
+/** @brief NULL or empty input argument */
 #define CALC_ERR_NULL_ARG       12
-/** @def CALC_ERR_INTERNAL
- * Internal error, bad element type
- */
+/** @brief Internal error, bad element type */
 #define CALC_ERR_INTERNAL       13
 
 /** @} */
@@ -131,16 +112,17 @@
 extern "C" {
 #endif
 
-/**
- * Converts an expression from infix to postfix notation
+/** @brief Compile an infix expression into postfix byte-code
  *
- * @param pinfix pointer to the infix string
- * @param ppostfix pointer to the postfix notation
- * @param perror place for an error code
- * @return non-zero value in case of error 
+ * Converts an expression from an infix string to postfix byte-code
  *
- * It is the callers's responsibility to ensure that ppostfix points 
- * to sufficient storage to hold the postfix expression. The macro 
+ * @param pinfix Pointer to the infix string
+ * @param ppostfix Pointer to the postfix buffer
+ * @param perror Place to return an error code
+ * @return Non-zero value in event of error
+ *
+ * It is the callers's responsibility to ensure that \c ppostfix points
+ * to sufficient storage to hold the postfix expression. The macro
  * INFIX_TO_POSTFIX_SIZE(n) can be used to calculate an appropriate
  * postfix buffer size from the length of the infix buffer.
  *
@@ -164,16 +146,16 @@ extern "C" {
  *  NaN (not a number). Note that negative numbers will be encoded as a
  *  positive literal to which the unary negate operator is applied.
  *
- *  - Examples: 
+ *  - Examples:
  *    - 1
  *    - 2.718281828459
  *    - Inf
  *
  * -# ***Constants***
  *  There are three trigonometric constants available to any expression
- *  which return a value: 
+ *  which return a value:
  *    - pi returns the value of the mathematical constant π.
- *    - D2R evaluates to π/180 which, when used as a multiplier, 
+ *    - D2R evaluates to π/180 which, when used as a multiplier,
  *    converts an angle from degrees to radians.
  *    - R2D evaluates to 180/π which as a multiplier converts an angle
  *    from radians to degrees.
@@ -198,7 +180,7 @@ extern "C" {
  *  assignment, which can appear anywhere in the string. Sub-expressions within
  *  the string are separated by a semi-colon character.
  *
- *    - Examples: 
+ *    - Examples:
  *      - B; B:=A
  *      - i:=i+1; a*sin(i*D2R)
  *
@@ -209,7 +191,7 @@ extern "C" {
  *  associates from right to left. There is no unary plus operator, so numeric
  *  literals cannot begin with a + sign.
  *
- *    - Examples: 
+ *    - Examples:
  *      - a*b + c
  *      - a/-4 - b
  *
@@ -219,14 +201,14 @@ extern "C" {
  *  the power operators associate left-to-right and have a precedence in between * and
  *  unary minus.
  *
- *    - Examples: 
+ *    - Examples:
  *      - e:=a%10;
  *      - d:=a/10%10;
  *      - c:=a/100%10;
  *      - b:=a/1000%10;
  *      - b*4096+c*256+d*16+e
  *      - sqrt(a**2 + b**2)
- *     
+ *
  * -# ***Algebraic Functions***
  *  Various algebraic functions are available which take parameters inside
  *  parentheses. The parameter seperator is a comma.
@@ -306,7 +288,7 @@ extern "C" {
  *    - condition ? true result : false result
  *      - Example:
  *        - a < 360 ? a+1 : 0
- *        
+ *
  * -# ***Parentheses***
  * Sub-expressions can be placed within parentheses to override operator precence rules.
  * Parentheses can be nested to any depth, but the intermediate value stack used by
@@ -316,8 +298,9 @@ extern "C" {
 epicsShareFunc long
     postfix(const char *pinfix, char *ppostfix, short *perror);
 
-/**
- * Evaluates the postfix expression
+/** @brief Run the calculation engine
+ *
+ * Evaluates the postfix expression against a set ot input values.
  *
  * @param parg Pointer to an array of double values for the arguments A-L
  * that can appear in the expression. Note that the argument values may be
@@ -330,47 +313,47 @@ epicsShareFunc long
 epicsShareFunc long
     calcPerform(double *parg, double *presult, const char *ppostfix);
 
-/**
- * Discover used or modified expression arguments
+/** @brief Find the inputs and outputs of an expression
  *
- * Software using the calc subsystem may need to know what expression arguments are
- * used and/or modified by a particular expression. It can discover this from the
- * postfix string by calling calcArgUsage(), which takes two pointers pinputs
- * and pstores to a pair of unsigned long bitmaps which return that information
- * to the caller. Passing a NULL value for either of these pointers is legal
- * if only the other is needed.
- * @param ppostfix The postfix expression created by postfix().
- * @param pinputs Bitmap pointer
- * The least signficant bit (bit 0) of the bitmap at *pinputs will be set if the
- * expression depends on the argument A, and so on through bit 11 for the argument L.
- * An argument that is not used until after a value has been assigned
- * to it will not be set in the pinputs bitmap, thus the bits can be used to determine
- * whether a value needs to be supplied for their associated argument or not for the
- * purposes of evaluating the expression.
+ * Software using the calc subsystem may need to know what expression
+ * arguments are used and/or modified by a particular expression. It can
+ * discover this from the postfix string by calling calcArgUsage(), which
+ * takes two pointers @c pinputs and @c pstores to a pair of unsigned long
+ * bitmaps which return that information to the caller. Passing a NULL value
+ * for either of these pointers is legal if only the other is needed.
+ *
+ * The least signficant bit (bit 0) of the bitmap at @c *pinputs will be set
+ * if the expression depends on the argument A, and so on through bit 11 for
+ * the argument L. An argument that is not used until after a value has been
+ * assigned to it will not be set in the pinputs bitmap, thus the bits can
+ * be used to determine whether a value needs to be supplied for their
+ * associated argument or not for the purposes of evaluating the expression.
+ *
+ * Bit 0 of the bitmap at @c *pstores will be set if the expression assigns
+ * a value to the argument A, bit 1 for argument B etc.
+ * @param ppostfix A postfix expression created by postfix().
+ * @param pinputs Bitmap pointer.
  * @param pstores Bitmap pointer.
- * Bit 0 of the bitmap at *pstores will be set if the expression assigns a value to
- * the argument A. 
  * @return The return value will be non-zero if the ppostfix expression was
  * illegal, otherwise 0.
  */
 epicsShareFunc long
     calcArgUsage(const char *ppostfix, unsigned long *pinputs, unsigned long *pstores);
 
-/**
- * Gives back a string representation of the error codes
- * @param error error code
- * @return  string representation of the error code
+/** @brief Convert an error code to a string.
  *
- * The error codes defined above as a series of macros with names starting CALC_ERR_.
- * @note Changes in the errors must also be made in calcErrorStr()
+ * Gives out a printable version of an individual error code.
+ * The error codes are macros defined here with names starting @c CALC_ERR_
+ * @param error Error code
+ * @return A string representation of the error code
  */
 epicsShareFunc const char *
     calcErrorStr(short error);
 
-/**
- * Disassemble the given postfix instructions to stdout
- * @param pinst postfix instructions
+/** @brief Disassemble a postfix expression
  *
+ * Convert the byte-code stream to text and print to stdout.
+ * @param pinst postfix instructions
  */
 epicsShareFunc void
     calcExprDump(const char *pinst);

@@ -9,13 +9,11 @@
 
 /**
  * @file asTrapWrite.h
- * @brief Trapping channel access writes 
+ * @brief API for monitoring external put operations to an IOC.
  * @author  Marty Kraimer
- * @date    07NOV2000
  *
- * Access security provides a facility asTrapWrite that can trap
- * write requests and pass them to any facility that registers a
- * listener.
+ * The access security subsystem provides an API asTrapWrite that makes
+ * put/write requests visible to any facility that registers a listener.
  */
 
 #ifndef INCasTrapWriteh
@@ -26,62 +24,62 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /**
- * @struct asTrapWriteMessage
- *
- * @note  starting with V4.4 the count (no_elements)
- * field is used (abused) to store the minor version number of the client.
+ * @brief The message passed to registered listeners.
  */
 typedef struct asTrapWriteMessage {
     const char *userid; /**< @brief Userid of whoever orginated the request. */
     const char *hostid; /**< @brief Hostid of whoever orginated the request. */
-    void *serverSpecific; /**< @brief The meaning of this field is server
-			    specific. If the listerner uses this field it must
-			    know what type of server is supplying the messages.
-			    It is the value the server provides to asTrapWriteBefore.
-                            */
-    void *userPvt; /**<  @brief This field is for use by the asTrapWriteListener.
-		     When the listener is called before the write, it has the 
-		     value 0. The listener can give it any value it desires
-		     and it will have the same value when the listener gets
-		     called after the write. */
+    void *serverSpecific; /**< @brief A field for use by the server.
+        *
+        * Any listener that uses this field must know what type of
+        * server is forwarding the put requests. This pointer holds
+        * the value the server provides to asTrapWriteWithData(), which
+        * for RSRV is the dbChannel pointer for the target field.
+        */
+    void *userPvt; /**< @brief A field for use by the @ref asTrapWriteListener.
+        *
+        * When the listener is called before the write, this has the
+        * value 0. The listener can give it any value it desires
+        * and it will have the same value when the listener gets
+        * called again after the write. */
     int dbrType; /**< @brief Data type from ca/db_access.h, NOT dbFldTypes.h */
-    int no_elements; /**< @brief See note, stores minor version number of the client */
+    int no_elements; /**< @brief Array length  */
     void *data;     /**< @brief Might be NULL if no data is available */
 } asTrapWriteMessage;
 
 /**
- * @typedef *asTrapWriteId
- * @brief Defines Id as void pointer.
+ * @brief An identifier needed to unregister an listener.
  */
 typedef void *asTrapWriteId;
 
 /**
- * @typedef *asTrapWriteListener
- * @brief Define *asTrapWriteListener as asTrapWriteMessage
+ * @brief Pointer to a listener function.
  *
- * asTrapWriteListener is called before and after the write is performed.
- * The listener can set userPvt on the before call and retrieve it after
- * after = (0,1) (before,after) the put.
+ * Each registered listener function is called twice for every put; once
+ * before and once after the write is performed.
+ * The listener may set @c userPvt in the first call and retrieve it in the
+ * second call.
  *
  * Each asTrapWriteMessage can change or may be deleted after the user's
  * asTrapWriteListener returns
  *
- * asTrapWriteListener delays the associated server thread so it must not
- * do anything that causes to to block.
+ * The listener function is called by a server thread so it must not block
+ * or do anything that causes a delay.
 */
 typedef void(*asTrapWriteListener)(asTrapWriteMessage *pmessage,int after);
 
 /**
  * @brief Register function to be called on asTrapWriteListener.
- * @param func Funktion to be registered.
- * @return Pointer to listener Id.
+ * @param func The listener function to be called.
+ * @return A listener identifier for unregistering this listener.
  */
 epicsShareFunc asTrapWriteId epicsShareAPI asTrapWriteRegisterListener(
     asTrapWriteListener func);
 /**
  * @brief Unregister asTrapWriteListener.
- * @param id Listener id (obtained by asTrapWriteRegisterListener).
+ * @param id Listener identifier from asTrapWriteRegisterListener().
  */
 epicsShareFunc void epicsShareAPI asTrapWriteUnregisterListener(
     asTrapWriteId id);

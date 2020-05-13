@@ -4,17 +4,16 @@
 * Copyright (c) 2002 The Regents of the University of California, as
 *     Operator of Los Alamos National Laboratory.
 * EPICS BASE is distributed subject to a Software License Agreement found
-* in file LICENSE that is included with this distribution. 
+* in file LICENSE that is included with this distribution.
 \*************************************************************************/
 
 /**
  * @file dbDefs.h
  * @author Marty Kraimer
- * @date  6-1-90
  *
- * @brief Miscellaneous database related functions
+ * @brief Miscellaneous macro definitions.
  *
- * This file containes a number of database related definitions.
+ * This file defines several miscellaneous macros.
  */
 
 #ifndef INC_dbDefs_H
@@ -32,34 +31,30 @@
 #endif
 #define FALSE 0
 
+/** @brief Deprecated synonym for @c static */
 #ifndef LOCAL
-/**
- * @def LOCAL
- * @brief Deprecated, use static
- */
 #   define LOCAL static
 #endif
 
-/**
- * @def NELEMENTS(array)
- * @brief Number of elements in an array
- */
+/** @brief Number of elements in array */
 #ifndef NELEMENTS
 #   define NELEMENTS(array) (sizeof (array) / sizeof ((array) [0]))
 #endif
 
-/**
- * @def OFFSET(structure, member)
- * @brief Byte offset of member in structure
- * @note Deprecated, use offsetof
- */
+/** @brief Deprecated synonym for @c offsetof */
 #ifndef OFFSET
 #   define OFFSET(structure, member) offsetof(structure, member)
 #endif
 
-/**
- * @def CONTAINER(ptr, structure, member)
- * @brief Subtract member byte offset, returning pointer to parent object
+/** @brief Find parent object from a member pointer
+ *
+ * Subtracts the byte offset of the member in the structure from the
+ * pointer to the member itself, giving a pointer to parent strucure.
+ * @param ptr Pointer to a member data field of a structure
+ * @param structure Type name of the parent structure
+ * @param member Field name of the data member
+ * @return Pointer to the parent structure
+ * @note Both GCC and Clang will type-check this macro.
  */
 #ifndef CONTAINER
 # ifdef __GNUC__
@@ -73,12 +68,9 @@
 # endif
 #endif
 
-/**
- * @def PVNAME_SZ (PVNAME_STRINGSZ - 1)
- * @brief Process Variable Name Size
- * @note PVNAME_STRINGSZ includes the nil terminator
- */
+/** @brief Size of a record name including the nil terminator */
 #define PVNAME_STRINGSZ 61
+/** @brief Size of a record name without the nil terminator */
 #define PVNAME_SZ (PVNAME_STRINGSZ - 1)
 
 /**
@@ -87,10 +79,7 @@
  */
 #define PVLINK_STRINGSZ 1024
 
-/**
- * @def DB_MAX_CHOICES
- * @brief dbAccess enums/menus can have up to this many choices
- */
+/** @brief dbAccess enums/menus can have up to this many choices */
 #define DB_MAX_CHOICES 30
 
 #endif /* INC_dbDefs_H */
