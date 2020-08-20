@@ -6,23 +6,24 @@
 * EPICS BASE is distributed subject to a Software License Agreement found
 * in file LICENSE that is included with this distribution.
 \*************************************************************************/
-/*
- *      General hash table templates for fast indexing of resources
- *      of any base resource type and any resource identifier type. Fast
- *      indexing is implemented with a hash lookup. The identifier type
- *      implements the hash algorithm (or derives from one of the supplied
- *      identifier types which provide a hashing routine). The table expands
- *      dynamically depending on load, and without introducing non-determanistic
- *      latency.
+/**
+ * @file resourceLib.h
+ * @brief A C++ hash facility that implements the same functionality as bucketLib
  *
- *      Unsigned integer and string identifier classes are supplied here.
+ * General hash table templates for fast indexing of resources of any
+ * base resource type and any resource identifier type. Fast indexing
+ * is implemented with a hash lookup. The identifier type implements
+ * the hash algorithm (or derives from one of the supplied identifier
+ * types which provide a hashing routine). The table expands
+ * dynamically depending on load, and without introducing
+ * non-deterministic latency.
  *
- *      Authors Jeffrey O. Hill
- *              Marty Kraimer (string hash algorithm)
- *              influenced by papers by Peter K. Pearson and Per-Ake Larson
+ * Unsigned integer and string identifier classes are supplied here.
  *
- *              johill@lanl.gov
- *              505 665 1831
+ * @author Jeffrey O. Hill johill@lanl.gov 505 665 1831
+ * @author Marty Kraimer (string hash algorithm)
+ * @author Influenced by papers by Peter K. Pearson and Per-Ake Larson
+ *
  */
 
 #ifndef INCresourceLibh
@@ -47,52 +48,56 @@ typedef size_t resTableIndex;
 template < class T, class ID > class resTableIter;
 template < class T, class ID > class resTableIterConst;
 
-//
-// class resTable <T, ID>
-//
-// This class stores resource entries of type T which can be efficiently
-// located with a hash key of type ID.
-//
-// NOTES:
-// 1)   class T must derive from class ID and also from class tsSLNode<T>
-//
-// 2)   If the "resTable::show (unsigned level)" member function is called then
-//      class T must also implement a "show (unsigned level)" member function which
-//      dumps increasing diagnostics information with increasing "level" to
-//      standard out.
-//
-// 3)   Classes of type ID must implement the following member functions:
-//
-//          // equivalence test
-//          bool operator == (const ID &);
-//
-//          // ID to hash index convert (see examples below)
-//          resTableIndex hash (unsigned nBitsHashIndex) const;
-//
-// 4)   Storage for identifier of type ID must persist until the item of type
-//      T is deleted from the resTable
-//
+/**
+ * class resTable <T, ID>
+ *
+ * @brief Resource table class
+ *
+ * This class stores resource entries of type T which can be efficiently
+ * located with a hash key of type ID.
+ *
+ * Notes
+ * -----
+ *
+ * -# class T must derive from class ID and also from class tsSLNode<T>
+ *
+ * -# If the "resTable::show (unsigned level)" member function is
+ *    called then class T must also implement a "show (unsigned
+ *    level)" member function which dumps increasing diagnostics
+ *    information with increasing "level" to standard out.
+ *
+ * -# Classes of type ID must implement the following member
+ *    functions:
+ *
+ *        // equivalence test
+ *        bool operator == (const ID &);
+ *
+ *        // ID to hash index convert (see examples below)
+ *        resTableIndex hash (unsigned nBitsHashIndex) const;
+ *
+ * -# Storage for identifier of type ID must persist until the item of
+ *    type T is deleted from the resTable
+ */
 template <class T, class ID>
 class resTable {
 public:
     resTable ();
     virtual ~resTable();
-    // Call " void T::show (unsigned level)" for each entry
+
     void show ( unsigned level ) const;
     void verify () const;
-    int add ( T & res ); // returns -1 (id exists in table), 0 (success)
-    T * remove ( const ID &idIn ); // remove entry
-    void removeAll ( tsSLList<T> & destination ); // remove all entries
-    T * lookup ( const ID &idIn ) const; // locate entry
-    // Call (pT->*pCB) () for each entry but expect poor performance
-    // with sparcely populated tables
+    int add ( T & res ); 
+    T * remove ( const ID &idIn );
+    void removeAll ( tsSLList<T> & destination );
+
+    T * lookup ( const ID &idIn ) const;
     void traverse ( void (T::*pCB)() );
-    void traverseConst ( void (T::*pCB)() const ) const;
+    void traverseConst ( void (T::*pCB)() const ) const; 
+                          
     unsigned numEntriesInstalled () const;
     void setTableSize ( const unsigned newTableSize );
-    // iterate through all entries but expect poor performance
-    // with sparcely populated tables
     typedef resTableIter < T, ID > iterator;
+
     typedef resTableIterConst < T, ID > iteratorConst;
     iterator firstIter ();
     iteratorConst firstIter () const;
@@ -116,11 +121,13 @@ private:
     friend class resTableIterConst < T, ID >;
 };
 
-//
-// class resTableIter
-//
-// an iterator for the resource table class
-//
+
+/**
+ * class resTableIter
+ * @brief An iterator for the resource table class
+ * @tparam T resource entry type
+ * @tparam ID hash key type
+ */
 template < class T, class ID >
 class resTableIter {
 public:
@@ -143,11 +150,13 @@ private:
     friend class resTable < T, ID >;
 };
 
-//
-// class resTableIterConst
-//
-// an iterator for a const resource table class
-//
+
+/**
+ * class resTableIterConst
+ * @brief An iterator for the resource table class
+ * @tparam T resource entry type
+ * @tparam ID hash key type
+ */
 template < class T, class ID >
 class resTableIterConst {
 public:
@@ -170,31 +179,34 @@ private:
     friend class resTable < T, ID >;
 };
 
-//
-// Some ID classes that work with the above template
-//
-
-//
-// class intId
-//
-// signed or unsigned integer identifier (class T must be
-// a signed or unsigned integer type)
-//
-// this class works as type ID in resTable <class T, class ID>
-//
-// 1<<MIN_INDEX_WIDTH specifies the minimum number of
-// elements in the hash table within resTable <class T, class ID>.
-// Set this parameter to zero if unsure of the correct minimum
-// hash table size.
-//
-// MAX_ID_WIDTH specifies the maximum number of ls bits in an
-// integer identifier which might be set at any time.
-//
-// MIN_INDEX_WIDTH and MAX_ID_WIDTH are specified here at
-// compile time so that the hash index can be produced
-// efficiently. Hash indexes are produced more efficiently
-// when (MAX_ID_WIDTH - MIN_INDEX_WIDTH) is minimized.
-//
+/**
+ * @defgroup resTableIterators Iterators
+ *
+ * Some ID classes that work with the class resTableIter
+ *
+ * @{
+ */
+/**
+ * class intId
+ *
+ * Signed or unsigned integer identifier (class T must be
+ * a signed or unsigned integer type)
+ *
+ * This class works as type ID in resTable <class T, class ID>
+ *
+ * 1<<MIN_INDEX_WIDTH specifies the minimum number of
+ * elements in the hash table within resTable <class T, class ID>.
+ * Set this parameter to zero if unsure of the correct minimum
+ * hash table size.
+ *
+ * MAX_ID_WIDTH specifies the maximum number of ls bits in an
+ * integer identifier which might be set at any time.
+ *
+ * MIN_INDEX_WIDTH and MAX_ID_WIDTH are specified here at
+ * compile time so that the hash index can be produced
+ * efficiently. Hash indexes are produced more efficiently
+ * when (MAX_ID_WIDTH - MIN_INDEX_WIDTH) is minimized.
+ */
 template <class T, unsigned MIN_INDEX_WIDTH=4u,
     unsigned MAX_ID_WIDTH = sizeof(T)*CHAR_BIT>
 class intId {
@@ -207,14 +219,16 @@ protected:
     T id;
 };
 
-//
-// class chronIntIdResTable <ITEM>
-//
-// a specialized resTable which uses unsigned integer keys which are
-// allocated in chronological sequence
-//
-// NOTE: ITEM must public inherit from chronIntIdRes <ITEM>
-//
+/**
+ * class chronIntIdResTable \<ITEM\>
+ *
+ * @brief Resource table for chronological entries.
+ *
+ * A specialized resTable which uses unsigned integer keys which are
+ * allocated in chronological sequence.
+ *
+ * @note ITEM must public inherit from chronIntIdRes \<ITEM\>
+ */
 class chronIntId : public intId<unsigned, 8u, sizeof(unsigned)*CHAR_BIT>
 {
 public:
@@ -236,11 +250,11 @@ private:
     }
 };
 
-//
-// class chronIntIdRes<ITEM>
-//
-// resource with unsigned chronological identifier
-//
+/**
+ * class chronIntIdRes<ITEM>
+ *
+ * Resource with unsigned chronological identifier.
+ */
 template <class ITEM>
 class chronIntIdRes : public chronIntId, public tsSLNode<ITEM> {
 public:
@@ -251,11 +265,11 @@ private:
     friend class chronIntIdResTable<ITEM>;
 };
 
-//
-// class stringId
-//
-// character string identifier
-//
+/**
+ * class stringId
+ *
+ * Character string identifier.
+ */
 class epicsShareClass stringId {
 public:
     enum allocationType {copyString, refString};
@@ -263,7 +277,7 @@ public:
     virtual ~stringId();
     resTableIndex hash () const;
     bool operator == (const stringId &idIn) const;
-    const char * resourceName() const; // return the pointer to the string
+    const char * resourceName() const; /**< @brief return the pointer to the string */
     void show (unsigned level) const;
 private:
     stringId & operator = ( const stringId & );
@@ -272,13 +286,18 @@ private:
     const allocationType allocType;
 };
 
+/**
+ * @}
+ */
+
 /////////////////////////////////////////////////
 // resTable<class T, class ID> member functions
 /////////////////////////////////////////////////
 
-//
-// resTable::resTable ()
-//
+/**
+ * @brief Constructor.
+ * resTable::resTable ()
+ */
 template <class T, class ID>
 inline resTable<T,ID>::resTable () :
     pTable ( 0 ), nextSplitIndex ( 0 ), hashIxMask ( 0 ),
@@ -291,11 +310,10 @@ inline unsigned resTable<T,ID>::resTableBitMask ( const unsigned nBits )
     return ( 1 << nBits ) - 1;
 }
 
-//
-// resTable::remove ()
-//
-// remove a res from the resTable
-//
+/** 
+ * @brief Remove entry.
+ * Remove a resource from the resTable.
+ */
 template <class T, class ID>
 T * resTable<T,ID>::remove ( const ID & idIn )
 {
@@ -326,6 +344,10 @@ T * resTable<T,ID>::remove ( const ID & idIn )
     }
 }
 
+/** 
+ * @brief Remove all entries.  
+ * resTable::removeAll ()
+ */
 template <class T, class ID>
 void resTable<T,ID>::removeAll ( tsSLList<T> & destination )
 {
@@ -338,9 +360,14 @@ void resTable<T,ID>::removeAll ( tsSLList<T> & destination )
     this->nInUse = 0;
 }
 
-//
-// resTable::lookup ()
-//
+/**
+ * @brief Locate entry.
+ *
+ * resTable::lookup () 
+ * 
+ * Call (pT->*pCB) () for each entry but expect poor performance with
+ * sparsely populated tables
+ */
 template <class T, class ID>
 inline T * resTable<T,ID>::lookup ( const ID & idIn ) const
 {
@@ -367,9 +394,12 @@ inline resTableIndex resTable<T,ID>::hash ( const ID & idIn ) const
     return h & this->hashIxSplitMask;
 }
 
-//
-// resTable<T,ID>::show
-//
+/**
+ * resTable<T,ID>::show
+ * @brief Show entries.
+ *
+ * Call "void T::show (unsigned level)" for each entry
+ */
 template <class T, class ID>
 void resTable<T,ID>::show ( unsigned level ) const
 {
@@ -470,9 +500,11 @@ void resTable<T,ID>::verify () const
 }
 
 
-//
-// resTable<T,ID>::traverse
-//
+/**
+ * @brief Traverse resource table.
+ * resTable<T,ID>::traverse
+ *
+ */
 template <class T, class ID>
 void resTable<T,ID>::traverse ( void (T::*pCB)() )
 {
@@ -488,9 +520,14 @@ void resTable<T,ID>::traverse ( void (T::*pCB)() )
     }
 }
 
-//
-// resTable<T,ID>::traverseConst
-//
+/**
+ * @brief Traverse resource table.
+ * resTable<T,ID>::traverseConst
+ *
+ * Iterate through all entries but expect poor performance with
+ * sparsely populated tables
+ *
+ */
 template <class T, class ID>
 void resTable<T,ID>::traverseConst ( void (T::*pCB)() const ) const
 {
@@ -638,9 +675,10 @@ void resTable<T,ID>::splitBucket ()
     }
 }
 
-//
-// add a res to the resTable
-//
+/**
+ * @brief add a res to the resTable
+ * @returns result of the operation: -1 (id exists in table), 0 (success)
+ */
 template <class T, class ID>
 int resTable<T,ID>::add ( T &res )
 {
@@ -685,9 +723,11 @@ T * resTable<T,ID>::find ( tsSLList<T> &list, const ID &idIn ) const
     return pItem.pointer ();
 }
 
-//
-// ~resTable<T,ID>::resTable()
-//
+/**
+ * @brief Destructor.
+ *
+ * ~resTable<T,ID>::resTable ()
+ */
 template <class T, class ID>
 resTable<T,ID>::~resTable()
 {
@@ -1026,14 +1066,14 @@ inline resTableIndex integerHash ( unsigned MIN_INDEX_WIDTH,
     resTableIndex hashid = static_cast <resTableIndex> ( id );
 
     //
-    // the intent here is to gurantee that all components of the
+    // the intent here is to guarantee that all components of the
     // integer contribute even if the resTableIndex returned might
     // index a small table.
     //
     // On most compilers the optimizer will unroll this loop so this
     // is actually a very small inline function
     //
-    // Experiments using the microsoft compiler show that this isnt
+    // Experiments using the microsoft compiler show that this isn't
     // slower than switching on the architecture size and unrolling the
     // loop explicitly (that solution has resulted in portability
     // problems in the past).
@@ -1132,7 +1172,7 @@ stringId::~stringId()
             // each cast away of const, but in this case
             // it cant be avoided.
             //
-            // The DEC compiler complains that const isnt
+            // The DEC compiler complains that const isn't
             // really significant in a cast if it is present.
             //
             // I hope that deleting a pointer to "char"
@@ -1158,4 +1198,3 @@ resTableIndex stringId::hash() const
 #endif // if instantiateRecourceLib is defined
 
 #endif // INCresourceLibh
-
